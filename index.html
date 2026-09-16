@@ -1,0 +1,1899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mock Interview — Adaptive Technical Interview Preparation</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Inter & Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- React 18 & ReactDOM 18 -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Babel Standalone for JSX in browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+
+  <style>
+    body {
+      font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f6f5f2;
+      background-image: radial-gradient(circle at 50% 14%, rgba(255,255,255,0.96), rgba(246,245,242,0.76) 48%, rgba(238,236,232,0.92) 100%);
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+    
+    .font-serif {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+    
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Subtle custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.03);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.18);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0,0,0,0.3);
+    }
+
+    @keyframes pulseSubtle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.82; transform: scale(1.02); }
+    }
+    .animate-pulse-subtle {
+      animation: pulseSubtle 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+  </style>
+</head>
+<body class="min-h-screen overflow-x-hidden text-[#090909] antialiased">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+    // ==========================================
+    // 1. ICONS COMPONENT (Pure SVG matching Lucide)
+    // ==========================================
+    const Icon = ({ name, className = "size-5", strokeWidth = 1.5 }) => {
+      switch (name) {
+        case "spinner":
+          return (
+            <svg className={`${className} animate-spin`} fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+          );
+        case "help-circle":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+              <line x1="12" x2="12.01" y1="17" y2="17" />
+            </svg>
+          );
+        case "check":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          );
+        case "x":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          );
+        case "arrow-right":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          );
+        case "sparkles":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+            </svg>
+          );
+        case "upload":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" x2="12" y1="3" y2="15" />
+            </svg>
+          );
+        case "book-open":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+          );
+        case "layers":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2" />
+              <polyline points="2 17 12 22 22 17" />
+              <polyline points="2 12 12 17 22 12" />
+            </svg>
+          );
+        case "bar-chart":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" x2="12" y1="20" y2="10" />
+              <line x1="18" x2="18" y1="20" y2="4" />
+              <line x1="6" x2="6" y1="20" y2="16" />
+            </svg>
+          );
+        case "trash":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          );
+        case "rotate-ccw":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+            </svg>
+          );
+        case "alert-triangle":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+              <line x1="12" x2="12" y1="9" y2="13" />
+              <line x1="12" x2="12.01" y1="17" y2="17" />
+            </svg>
+          );
+        case "check-circle":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          );
+        case "flame":
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3.5z" />
+            </svg>
+          );
+        default:
+          return (
+            <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+          );
+      }
+    };
+
+    // ==========================================
+    // 2. CONSOLIDATED STORAGE LAYER (subjects:all & history:all)
+    // ==========================================
+    const STORAGE_KEYS = {
+      SUBJECTS_ALL: "subjects:all",     // Consolidated bulk subject storage
+      HISTORY_ALL: "history:all",       // Bulk question history
+      SESSION_CURRENT: "session:current",
+      VERSION: "storage:version",
+      // Legacy keys for backward-compatibility migration
+      LEGACY_SUBJECTS_LIST: "subjects:list",
+      LEGACY_SUBJECT_PREFIX: "subject:"
+    };
+
+    const StorageService = {
+      async get(key) {
+        try {
+          if (window.storage && typeof window.storage.get === "function") {
+            const res = await window.storage.get(key);
+            return res ? (typeof res === "string" ? JSON.parse(res) : res) : null;
+          }
+          if (window.storage && typeof window.storage.getItem === "function") {
+            const res = await window.storage.getItem(key);
+            return res ? JSON.parse(res) : null;
+          }
+          const local = localStorage.getItem(key);
+          return local ? JSON.parse(local) : null;
+        } catch (e) {
+          console.warn(`StorageService.get failed for key "${key}":`, e);
+          const local = localStorage.getItem(key);
+          return local ? JSON.parse(local) : null;
+        }
+      },
+
+      async set(key, value) {
+        try {
+          const stringified = JSON.stringify(value);
+          localStorage.setItem(key, stringified);
+          if (window.storage && typeof window.storage.set === "function") {
+            await window.storage.set(key, stringified);
+          } else if (window.storage && typeof window.storage.setItem === "function") {
+            await window.storage.setItem(key, stringified);
+          }
+          return true;
+        } catch (e) {
+          console.error(`StorageService.set failed for key "${key}":`, e);
+          return false;
+        }
+      },
+
+      async remove(key) {
+        try {
+          localStorage.removeItem(key);
+          if (window.storage && typeof window.storage.remove === "function") {
+            await window.storage.remove(key);
+          } else if (window.storage && typeof window.storage.removeItem === "function") {
+            await window.storage.removeItem(key);
+          }
+          return true;
+        } catch (e) {
+          console.warn(`StorageService.remove failed for key "${key}":`, e);
+          return false;
+        }
+      }
+    };
+
+    // ==========================================
+    // 3. CROSS-PLATFORM, FENCE-AWARE MARKDOWN PARSER
+    // ==========================================
+    function normalizeLineEndings(raw) {
+      if (!raw) return "";
+      return raw.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+    }
+
+    function hashString(str) {
+      let hash = 5381;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) + hash) + str.charCodeAt(i);
+        hash = hash & hash;
+      }
+      return Math.abs(hash).toString(16).padStart(6, "0").slice(-6);
+    }
+
+    function normalizeComparisonText(str) {
+      if (!str) return "";
+      return str.toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, " ").trim();
+    }
+
+    function formatQuestionText(text) {
+      if (!text) return "";
+      return text.replace(/^(?:Q\d+|Question\s*\d+)[\s.:–-]+|\d+[.)]\s*/i, "").trim();
+    }
+
+    function parseMarkdownQuestions(rawMarkdown, subjectSlug, subjectName) {
+      const normalized = normalizeLineEndings(rawMarkdown);
+      const lines = normalized.split("\n");
+      
+      const questions = [];
+      const warnings = [];
+      const errors = [];
+
+      let currentQ = null;
+      let currentAnswerLines = [];
+      let inCodeFence = false;
+      let questionIndex = 1;
+
+      function commitCurrentQuestion() {
+        if (!currentQ) return;
+        
+        let answerText = currentAnswerLines.join("\n").trim();
+        // Remove leading **A.** or **A:** or A.
+        answerText = answerText.replace(/^\*\*(?:A|Ans|Answer)\.?\*\*:?\s*/i, "");
+        answerText = answerText.replace(/^(?:A|Ans|Answer)\.?\s*[:.-]\s*/i, "");
+
+        if (!currentQ.question) {
+          warnings.push(`Question #${questionIndex} had an empty title and was skipped.`);
+        } else if (!answerText) {
+          warnings.push(`"${currentQ.question.slice(0, 40)}..." is missing an answer block.`);
+          currentQ.answer = "(No official answer provided in source markdown)";
+          questions.push(currentQ);
+        } else {
+          currentQ.answer = answerText;
+          questions.push(currentQ);
+        }
+
+        currentQ = null;
+        currentAnswerLines = [];
+        questionIndex++;
+      }
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmed = line.trim();
+
+        // Detect code fence boundary (``` or ~~~)
+        if (trimmed.startsWith("```") || trimmed.startsWith("~~~")) {
+          inCodeFence = !inCodeFence;
+          if (currentQ) {
+            currentAnswerLines.push(line);
+          }
+          continue;
+        }
+
+        // If inside code fence, content is NEVER a structural divider!
+        if (inCodeFence) {
+          if (currentQ) {
+            currentAnswerLines.push(line);
+          }
+          continue;
+        }
+
+        // Standalone Q<N> line followed by question title on next non-empty line
+        const standaloneMatch = trimmed.match(/^(?:#{1,3}\s+)?Q(?:uestion)?\s*(\d+)$/i);
+        if (standaloneMatch && i + 1 < lines.length) {
+          let j = i + 1;
+          while (j < lines.length && !lines[j].trim()) j++;
+          if (j < lines.length && !lines[j].trim().startsWith("---") && !lines[j].trim().startsWith("```") && !lines[j].trim().startsWith("~~~")) {
+            commitCurrentQuestion();
+            const sourceKey = `Q${standaloneMatch[1]}`;
+            const qText = lines[j].trim().replace(/^[:.\-–]+\s*/, "");
+            const stableHash = hashString(normalizeComparisonText(qText));
+            const id = `${subjectSlug}-${sourceKey.toLowerCase()}-${stableHash}`;
+            currentQ = {
+              id,
+              sourceKey,
+              subject: subjectSlug,
+              subjectName: subjectName || subjectSlug.toUpperCase(),
+              question: qText,
+              answer: ""
+            };
+            i = j;
+            continue;
+          }
+        }
+
+        // Primary format: (### | ## | #)? Q<N>[:.-]? Question text OR ### Question text
+        const qPrefixMatch = line.match(/^(?:#{1,3}\s+)?(?:Q(?:uestion)?\s*(\d+)[\s.:–-]+)(.+)$/i);
+        const headingMatch = line.match(/^###\s+(.+)$/);
+        if (qPrefixMatch || headingMatch) {
+          commitCurrentQuestion();
+
+          const sourceKey = qPrefixMatch ? `Q${qPrefixMatch[1]}` : `Q${questionIndex}`;
+          let qText = qPrefixMatch ? qPrefixMatch[2] : headingMatch[1];
+          qText = qText.replace(/^[:.\-–]+\s*/, "").trim();
+          const stableHash = hashString(normalizeComparisonText(qText));
+          const id = `${subjectSlug}-${sourceKey.toLowerCase()}-${stableHash}`;
+
+          currentQ = {
+            id,
+            sourceKey,
+            subject: subjectSlug,
+            subjectName: subjectName || subjectSlug.toUpperCase(),
+            question: qText,
+            answer: ""
+          };
+          continue;
+        }
+
+        // If outside code fence and encounters divider like '---' or '## Section'
+        if (currentQ && (trimmed === "---" || trimmed === "***" || line.match(/^##\s+/))) {
+          if (currentAnswerLines.length > 0 && currentAnswerLines.some(l => l.trim().length > 0)) {
+            commitCurrentQuestion();
+            continue;
+          }
+        }
+
+        // Accumulate answer lines
+        if (currentQ) {
+          currentAnswerLines.push(line);
+        }
+      }
+
+      commitCurrentQuestion();
+
+      // Fallback parser: if primary parser found 0 questions, try ## headings as questions
+      if (questions.length === 0) {
+        warnings.push("Primary '### Q<N>.' parser found 0 questions. Attempting fallback parser on '##' and '###' headings...");
+        
+        let fbQ = null;
+        let fbLines = [];
+        let fbIndex = 1;
+        inCodeFence = false;
+
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          const trimmed = line.trim();
+
+          if (trimmed.startsWith("```") || trimmed.startsWith("~~~")) {
+            inCodeFence = !inCodeFence;
+            if (fbQ) fbLines.push(line);
+            continue;
+          }
+          if (inCodeFence) {
+            if (fbQ) fbLines.push(line);
+            continue;
+          }
+
+          const headingMatch = line.match(/^(?:##|###)\s+(.+)$/);
+          if (headingMatch) {
+            if (fbQ) {
+              fbQ.answer = fbLines.join("\n").trim() || "(No answer block provided)";
+              questions.push(fbQ);
+              fbLines = [];
+            }
+            let qTitle = headingMatch[1].trim();
+            let sourceKey = `Q${fbIndex++}`;
+            const fbQMatch = qTitle.match(/^(?:Q(?:uestion)?\s*(\d+)[\s.:–-]*)(.+)$/i);
+            if (fbQMatch) {
+              sourceKey = `Q${fbQMatch[1]}`;
+              qTitle = fbQMatch[2].replace(/^[:.\-–]+\s*/, "").trim();
+            }
+            const id = `${subjectSlug}-${sourceKey.toLowerCase()}-${hashString(normalizeComparisonText(qTitle))}`;
+            fbQ = {
+              id,
+              sourceKey,
+              subject: subjectSlug,
+              subjectName: subjectName || subjectSlug.toUpperCase(),
+              question: qTitle,
+              answer: ""
+            };
+            continue;
+          }
+
+          if (fbQ) {
+            fbLines.push(line);
+          }
+        }
+
+        if (fbQ) {
+          fbQ.answer = fbLines.join("\n").trim() || "(No answer block provided)";
+          questions.push(fbQ);
+        }
+      }
+
+      if (questions.length === 0) {
+        errors.push("No valid questions could be recognized in the provided Markdown. Please ensure headings follow the format: '### Q1. What is a process?' followed by '**A.** Answer content.'");
+      }
+
+      return { questions, warnings, errors };
+    }
+
+    // ==========================================
+    // 4. QUESTION RECONCILIATION & STABLE IDENTITY
+    // ==========================================
+    function reconcileQuestions(oldQuestions = [], newParsedQuestions = [], subjectSlug) {
+      const oldByNormText = new Map();
+
+      for (const oq of oldQuestions) {
+        const norm = normalizeComparisonText(oq.question);
+        if (!oldByNormText.has(norm)) oldByNormText.set(norm, []);
+        oldByNormText.get(norm).push(oq);
+      }
+
+      const assignedIds = new Set();
+      const reconciled = [];
+
+      for (const nq of newParsedQuestions) {
+        const norm = normalizeComparisonText(nq.question);
+        let matchedId = null;
+
+        // Strict identity rule: match by identical normalized question text.
+        // This guarantees that reordering, inserting, or deleting questions in a file
+        // NEVER misattaches learning history to an unrelated question!
+        if (oldByNormText.has(norm) && oldByNormText.get(norm).length === 1) {
+          matchedId = oldByNormText.get(norm)[0].id;
+        }
+
+        // Truly new question or collided text -> Generate new ID with collision protection
+        if (!matchedId || assignedIds.has(matchedId)) {
+          let baseId = `${subjectSlug}-${nq.sourceKey ? nq.sourceKey.toLowerCase() + "-" : ""}${hashString(norm)}`;
+          let id = baseId;
+          let counter = 1;
+          while (assignedIds.has(id)) {
+            id = `${baseId}-${counter++}`;
+          }
+          matchedId = id;
+        }
+
+        assignedIds.add(matchedId);
+        reconciled.push({
+          ...nq,
+          id: matchedId,
+          subject: subjectSlug
+        });
+      }
+
+      return reconciled;
+    }
+
+    // ==========================================
+    // 5. ADAPTIVE QUESTION SELECTION ALGORITHM
+    // ==========================================
+    function calculateQuestionWeight(questionId, historyMap) {
+      const hist = historyMap[questionId];
+      if (!hist) {
+        return 3.0; // Unseen: medium-high priority
+      }
+
+      const now = Date.now();
+      const daysSinceSeen = (now - (hist.lastSeenAt || now)) / (1000 * 60 * 60 * 24);
+      const recencyBoost = daysSinceSeen > 3 ? 1.5 : 1.0;
+
+      if (hist.lastResult === "wrong") {
+        return (hist.timesWrong >= 3 ? 6.0 : 5.0) * recencyBoost;
+      }
+
+      // lastResult === "right"
+      if (hist.currentStreak >= 5) {
+        return 0.5; // Well mastered
+      }
+      if (hist.currentStreak >= 2) {
+        return 1.0 * recencyBoost;
+      }
+      return 2.0 * recencyBoost;
+    }
+    const computeWeight = calculateQuestionWeight;
+
+    function getCooldownWindowSize(totalPoolCount) {
+      if (totalPoolCount <= 2) return 0;
+      return Math.min(10, Math.max(1, Math.floor(totalPoolCount / 3)));
+    }
+
+    function selectNextQuestion(pool, historyMap, askedQueue = [], currentQuestionId = null) {
+      if (!pool || pool.length === 0) return null;
+      if (pool.length === 1) return pool[0];
+
+      const cooldownN = getCooldownWindowSize(pool.length);
+      const recentIds = askedQueue.slice(-cooldownN);
+
+      // Filter eligible questions outside cooldown
+      let eligible = pool.filter(q => !recentIds.includes(q.id));
+
+      // Avoid immediate repeat of the current question if pool allows
+      if (eligible.length > 1 && currentQuestionId) {
+        eligible = eligible.filter(q => q.id !== currentQuestionId);
+      }
+
+      // If cooldown exhausted the pool, fallback gracefully to full pool rather than deadlocking
+      if (eligible.length === 0) {
+        eligible = pool.length > 1 && currentQuestionId 
+          ? pool.filter(q => q.id !== currentQuestionId) 
+          : pool;
+      }
+
+      // Weighted random selection
+      const weights = eligible.map(q => calculateQuestionWeight(q.id, historyMap));
+      const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+      
+      let randomVal = Math.random() * totalWeight;
+      for (let i = 0; i < eligible.length; i++) {
+        randomVal -= weights[i];
+        if (randomVal <= 0) {
+          return eligible[i];
+        }
+      }
+
+      return eligible[eligible.length - 1];
+    }
+
+    // ==========================================
+    // 6. PRE-LOADED STANDARD CURATED QUESTION PACKS
+    // ==========================================
+    const DEFAULT_SUBJECT_PACKS = [
+      {
+        slug: "os",
+        name: "Operating Systems",
+        raw: `### Q1. What is the difference between a process and a thread?
+**A.** A process is an independent executing program with its own dedicated memory space, address space, and system resources allocated by the operating system. 
+A thread is the smallest unit of execution within a process, often called a lightweight process. Threads within the same process share code, data, and open file descriptors, but each thread has its own program counter, registers, and call stack. Creating or switching threads has much lower overhead than processes.
+
+### Q2. What are the four necessary conditions for Deadlock to occur?
+**A.** The four Coffman conditions are:
+1. **Mutual Exclusion**: At least one resource must be held in a non-shareable mode.
+2. **Hold and Wait**: A process must currently hold at least one resource and be waiting to acquire additional resources held by other processes.
+3. **No Preemption**: Resources cannot be forcibly taken from a process; they can only be released voluntarily after completion.
+4. **Circular Wait**: A closed chain of processes exists such that each process holds at least one resource needed by the next process in the chain.
+
+### Q3. Explain Virtual Memory, Paging, and Page Faults.
+**A.** Virtual memory is a memory management technique that provides an "idealized abstraction of storage resources" larger than physical RAM. It maps virtual addresses used by programs to physical addresses in RAM or secondary storage (swap/pagefile).
+- **Paging**: Dividing virtual address space into fixed-size blocks called pages, and physical memory into matching frames.
+- **Page Fault**: A hardware interrupt raised when a program attempts to access a page in virtual memory that is not currently loaded into physical RAM. The OS page fault handler fetches the missing page from disk into a free frame.`
+      },
+      {
+        slug: "dbms",
+        name: "Database Management Systems",
+        raw: `### Q1. What are the ACID properties in database transactions?
+**A.** ACID ensures transaction reliability in databases:
+- **Atomicity**: All operations in a transaction succeed completely or none take effect ("all or nothing").
+- **Consistency**: A transaction moves the database from one valid state to another, satisfying all integrity constraints and schemas.
+- **Isolation**: Concurrent transactions execute independently without interfering with or observing each other's intermediate uncommitted states.
+- **Durability**: Once a transaction commits, its changes are permanently recorded in non-volatile storage and survive system crashes.
+
+### Q2. Compare Clustered vs Non-Clustered Indexes.
+**A.** 
+- **Clustered Index**: Determines the physical ordering of data rows in the storage table. A table can have only ONE clustered index because data can only be physically sorted one way. The leaf nodes of a clustered index contain the actual data rows.
+- **Non-Clustered Index**: A separate data structure containing sorted index keys and pointers (row locators or primary key values) referencing the physical data rows. A table can have multiple non-clustered indexes for optimizing different queries.
+
+### Q3. Explain Database Normalization (1NF, 2NF, 3NF, BCNF).
+**A.** Normalization reduces data redundancy and prevents update/insert/delete anomalies:
+- **1NF**: Atomic values (no repeating groups or comma-separated lists) with a primary key.
+- **2NF**: In 1NF + No partial dependencies (every non-key attribute must depend on the whole primary key, not part of a composite key).
+- **3NF**: In 2NF + No transitive dependencies (non-key attributes must not depend on other non-key attributes).
+- **BCNF**: A stricter version of 3NF where for every functional dependency X -> Y, X must be a super key.`
+      },
+      {
+        slug: "js",
+        name: "JavaScript Core",
+        raw: `### Q1. How does the JavaScript Event Loop work?
+**A.** JavaScript is single-threaded and uses a non-blocking, event-driven runtime:
+1. **Call Stack**: Executes synchronous code line-by-line (LIFO).
+2. **Web APIs**: Handles asynchronous operations (DOM events, timers, fetch) off the main thread.
+3. **Microtask Queue**: Receives promise callbacks (\`.then\`, \`async/await\`, \`queueMicrotask\`, \`MutationObserver\`).
+4. **Macrotask (Task) Queue**: Receives timer callbacks (\`setTimeout\`, \`setInterval\`, \`setImmediate\`, I/O).
+The Event Loop continuously checks if the Call Stack is empty. When empty, it drains the entire **Microtask Queue** before processing the next macrotask.`
+      }
+    ];
+
+    // ==========================================
+    // 7. MAIN INTERVIEW APPLICATION COMPONENT
+    // ==========================================
+    function App() {
+      // Navigation views: "interview", "manage", "history", "summary"
+      const [currentView, setCurrentView] = useState("interview");
+      const [isLoading, setIsLoading] = useState(true);
+      const [persistenceNotice, setPersistenceNotice] = useState(null);
+
+      // Data states: Consolidated subjects storage
+      const [subjectsData, setSubjectsData] = useState({}); // { [slug]: SubjectDataObject }
+      const [historyMap, setHistoryMap] = useState({}); // { [questionId]: QuestionHistory }
+      
+      // Active Session states with dedicated questionNumber counter
+      const [session, setSession] = useState({
+        version: 1,
+        startedAt: Date.now(),
+        questionNumber: 1, // Dedicated session question number (starts at 1)
+        askedQueue: [],
+        score: { right: 0, wrong: 0 },
+        activeQuestionId: null,
+        phase: "answering", // "answering" | "submitted" | "revealed" | "graded" | "ended"
+        sessionMissedQuestions: []
+      });
+
+      // User Answer State
+      const [userAnswer, setUserAnswer] = useState("");
+      const [isGradedThisTurn, setIsGradedThisTurn] = useState(false);
+      const [lastGradedOutcome, setLastGradedOutcome] = useState(null); // "right" | "wrong"
+
+      // Manage view states
+      const [uploadName, setUploadName] = useState("");
+      const [uploadSlug, setUploadSlug] = useState("");
+      const [uploadRawText, setUploadRawText] = useState("");
+      const [uploadWarnings, setUploadWarnings] = useState([]);
+      const [uploadErrors, setUploadErrors] = useState([]);
+      const [parsedPreviewCount, setParsedPreviewCount] = useState(0);
+      const [reuploadConfirmModal, setReuploadConfirmModal] = useState(null);
+      const [resumePromptModal, setResumePromptModal] = useState(null);
+
+      // ----------------------------------------------------
+      // INITIAL BULK HYDRATION (Consolidated subjects:all & history:all)
+      // ----------------------------------------------------
+      useEffect(() => {
+        async function hydrate() {
+          try {
+            // Bulk read #1: subjects:all
+            let loadedSubjectsAll = await StorageService.get(STORAGE_KEYS.SUBJECTS_ALL);
+
+            // Backward-compatibility migration: if legacy subjects:list exists, migrate once to subjects:all
+            if (!loadedSubjectsAll) {
+              const legacyList = await StorageService.get(STORAGE_KEYS.LEGACY_SUBJECTS_LIST);
+              if (legacyList && Array.isArray(legacyList) && legacyList.length > 0) {
+                loadedSubjectsAll = {};
+                for (const item of legacyList) {
+                  const data = await StorageService.get(`${STORAGE_KEYS.LEGACY_SUBJECT_PREFIX}${item.slug}:data`);
+                  if (data) {
+                    loadedSubjectsAll[item.slug] = data;
+                    await StorageService.remove(`${STORAGE_KEYS.LEGACY_SUBJECT_PREFIX}${item.slug}:data`);
+                  }
+                }
+                await StorageService.remove(STORAGE_KEYS.LEGACY_SUBJECTS_LIST);
+                await StorageService.set(STORAGE_KEYS.SUBJECTS_ALL, loadedSubjectsAll);
+              }
+            }
+
+            // If completely fresh with zero subjects, initialize default curated packs
+            if (!loadedSubjectsAll || Object.keys(loadedSubjectsAll).length === 0) {
+              loadedSubjectsAll = {};
+              for (const pack of DEFAULT_SUBJECT_PACKS) {
+                const parsed = parseMarkdownQuestions(pack.raw, pack.slug, pack.name);
+                loadedSubjectsAll[pack.slug] = {
+                  slug: pack.slug,
+                  name: pack.name,
+                  raw: pack.raw,
+                  questions: parsed.questions,
+                  updatedAt: Date.now()
+                };
+              }
+              await StorageService.set(STORAGE_KEYS.SUBJECTS_ALL, loadedSubjectsAll);
+            }
+
+            // Bulk read #2: history:all
+            const savedHistory = await StorageService.get(STORAGE_KEYS.HISTORY_ALL) || {};
+
+            // Bulk read #3: session:current
+            const savedSession = await StorageService.get(STORAGE_KEYS.SESSION_CURRENT);
+
+            setSubjectsData(loadedSubjectsAll);
+            setHistoryMap(savedHistory);
+
+            // Build full mixed pool
+            const pool = Object.values(loadedSubjectsAll).flatMap(d => d.questions || []);
+
+            // Check if unfinished session can be safely resumed
+            if (savedSession && savedSession.activeQuestionId && savedSession.phase !== "ended") {
+              const questionExists = pool.some(q => q.id === savedSession.activeQuestionId);
+              if (questionExists) {
+                // Ensure questionNumber is preserved or defaulted
+                if (!savedSession.questionNumber) {
+                  savedSession.questionNumber = savedSession.askedQueue ? savedSession.askedQueue.length : 1;
+                }
+                setResumePromptModal({
+                  session: savedSession,
+                  questionCount: pool.length
+                });
+              } else {
+                // Discard stale session if active question no longer exists
+                await StorageService.remove(STORAGE_KEYS.SESSION_CURRENT);
+                initFreshSession(pool, savedHistory);
+              }
+            } else {
+              initFreshSession(pool, savedHistory);
+            }
+
+          } catch (err) {
+            console.error("Hydration error:", err);
+            setPersistenceNotice("Unable to fully load saved data from storage. Running with active in-memory session.");
+          } finally {
+            setIsLoading(false);
+          }
+        }
+
+        hydrate();
+      }, []);
+
+      // ----------------------------------------------------
+      // DERIVED SUBJECTS & MIXED QUESTION POOL
+      // ----------------------------------------------------
+      const subjects = useMemo(() => {
+        return Object.values(subjectsData).map(s => ({ slug: s.slug, name: s.name }));
+      }, [subjectsData]);
+
+      const combinedPool = useMemo(() => {
+        return Object.values(subjectsData).flatMap(d => d.questions || []);
+      }, [subjectsData]);
+
+      const representedSubjects = useMemo(() => {
+        const set = new Set();
+        for (const q of combinedPool) {
+          if (q.subjectName) set.add(q.subjectName);
+        }
+        return Array.from(set);
+      }, [combinedPool]);
+
+      const currentQuestion = useMemo(() => {
+        if (!session.activeQuestionId) return null;
+        return combinedPool.find(q => q.id === session.activeQuestionId) || null;
+      }, [combinedPool, session.activeQuestionId]);
+
+      // ----------------------------------------------------
+      // FRESH SESSION INITIALIZER (Dedicated questionNumber starts at 1)
+      // ----------------------------------------------------
+      const initFreshSession = useCallback((pool, currentHist) => {
+        const firstQ = selectNextQuestion(pool, currentHist, [], null);
+        const newSession = {
+          version: 1,
+          startedAt: Date.now(),
+          questionNumber: 1, // Start session question counter at 1
+          askedQueue: firstQ ? [firstQ.id] : [],
+          score: { right: 0, wrong: 0 },
+          activeQuestionId: firstQ ? firstQ.id : null,
+          phase: "answering",
+          sessionMissedQuestions: []
+        };
+        setSession(newSession);
+        setUserAnswer("");
+        setIsGradedThisTurn(false);
+        setLastGradedOutcome(null);
+        StorageService.set(STORAGE_KEYS.SESSION_CURRENT, newSession);
+      }, []);
+
+
+      // ----------------------------------------------------
+      // INTERVIEW FLOW & STATE MACHINE
+      // ----------------------------------------------------
+      // Flow: answering -> submitted -> revealed -> graded -> next question
+      // questionNumber remains UNCHANGED during Answer -> Submit -> Reveal -> Self-mark
+
+      const handleSubmitAnswer = () => {
+        setSession(prev => {
+          const updated = { ...prev, phase: "revealed" };
+          StorageService.set(STORAGE_KEYS.SESSION_CURRENT, updated);
+          return updated;
+        });
+      };
+
+      // Fast Path: "I Don't Know / Reveal"
+      // Immediately marks ❌ Wrong, updates history once, increments wrong score,
+      // reveals answer, and unlocks Next Question directly without requiring a second click.
+      const handleIDontKnow = () => {
+        if (isGradedThisTurn || session.phase === "graded" || !currentQuestion) return;
+
+        const qId = currentQuestion.id;
+        const now = Date.now();
+        const oldHist = historyMap[qId] || {
+          timesSeen: 0,
+          timesWrong: 0,
+          currentStreak: 0,
+          bestStreak: 0
+        };
+
+        const updatedHistory = {
+          ...historyMap,
+          [qId]: {
+            timesSeen: oldHist.timesSeen + 1,
+            timesWrong: oldHist.timesWrong + 1,
+            lastResult: "wrong",
+            lastSeenAt: now,
+            currentStreak: 0,
+            bestStreak: oldHist.bestStreak
+          }
+        };
+
+        const newScore = {
+          right: session.score.right,
+          wrong: session.score.wrong + 1
+        };
+
+        const updatedMissed = [
+          ...session.sessionMissedQuestions,
+          {
+            question: currentQuestion,
+            userAnswer: userAnswer.trim() || "(I Don't Know / Revealed)"
+          }
+        ];
+
+        const updatedSession = {
+          ...session,
+          score: newScore,
+          phase: "graded",
+          sessionMissedQuestions: updatedMissed
+        };
+
+        setIsGradedThisTurn(true);
+        setLastGradedOutcome("wrong");
+        setHistoryMap(updatedHistory);
+        setSession(updatedSession);
+
+        StorageService.set(STORAGE_KEYS.HISTORY_ALL, updatedHistory);
+        StorageService.set(STORAGE_KEYS.SESSION_CURRENT, updatedSession);
+      };
+
+      // Self-Marking (✅ Correct / ❌ Wrong) in revealed phase
+      const handleGrade = (isCorrect) => handleSelfGrade(isCorrect);
+      const handleSelfGrade = (isCorrect) => {
+        if (isGradedThisTurn || session.phase === "graded" || !currentQuestion) return;
+
+        const qId = currentQuestion.id;
+        const now = Date.now();
+        const oldHist = historyMap[qId] || {
+          timesSeen: 0,
+          timesWrong: 0,
+          currentStreak: 0,
+          bestStreak: 0
+        };
+
+        let newHistEntry;
+        let newScore = { ...session.score };
+        let updatedMissed = [...session.sessionMissedQuestions];
+
+        if (isCorrect) {
+          const newStreak = oldHist.currentStreak + 1;
+          newHistEntry = {
+            timesSeen: oldHist.timesSeen + 1,
+            timesWrong: oldHist.timesWrong,
+            lastResult: "right",
+            lastSeenAt: now,
+            currentStreak: newStreak,
+            bestStreak: Math.max(oldHist.bestStreak, newStreak)
+          };
+          newScore.right += 1;
+        } else {
+          newHistEntry = {
+            timesSeen: oldHist.timesSeen + 1,
+            timesWrong: oldHist.timesWrong + 1,
+            lastResult: "wrong",
+            lastSeenAt: now,
+            currentStreak: 0,
+            bestStreak: oldHist.bestStreak
+          };
+          newScore.wrong += 1;
+          updatedMissed.push({
+            question: currentQuestion,
+            userAnswer: userAnswer.trim() || "(no answer entered)"
+          });
+        }
+
+        const updatedHistory = {
+          ...historyMap,
+          [qId]: newHistEntry
+        };
+
+        const updatedSession = {
+          ...session,
+          score: newScore,
+          phase: "graded",
+          sessionMissedQuestions: updatedMissed
+        };
+
+        setIsGradedThisTurn(true);
+        setLastGradedOutcome(isCorrect ? "right" : "wrong");
+        setHistoryMap(updatedHistory);
+        setSession(updatedSession);
+
+        StorageService.set(STORAGE_KEYS.HISTORY_ALL, updatedHistory);
+        StorageService.set(STORAGE_KEYS.SESSION_CURRENT, updatedSession);
+      };
+
+      // Next Question: increments dedicated session questionNumber counter exactly once
+      const handleNextQuestion = () => {
+        const nextQ = selectNextQuestion(
+          combinedPool,
+          historyMap,
+          session.askedQueue,
+          session.activeQuestionId
+        );
+
+        if (!nextQ) {
+          alert("No questions available. Please upload a subject file first.");
+          return;
+        }
+
+        const currentQNum = session.questionNumber || 1;
+        const updatedSession = {
+          ...session,
+          questionNumber: currentQNum + 1, // Increments ONLY here when advancing
+          askedQueue: [...session.askedQueue, nextQ.id],
+          activeQuestionId: nextQ.id,
+          phase: "answering"
+        };
+
+        setSession(updatedSession);
+        setUserAnswer("");
+        setIsGradedThisTurn(false);
+        setLastGradedOutcome(null);
+
+        StorageService.set(STORAGE_KEYS.SESSION_CURRENT, updatedSession);
+      };
+
+      // End Current Session
+      const handleEndSession = () => {
+        const updated = { ...session, phase: "ended" };
+        setSession(updated);
+        setCurrentView("summary");
+        StorageService.set(STORAGE_KEYS.SESSION_CURRENT, updated);
+      };
+
+      // Start New Session from Summary
+      const handleRestartFromSummary = () => {
+        initFreshSession(combinedPool, historyMap);
+        setCurrentView("interview");
+      };
+
+      // ----------------------------------------------------
+      // SUBJECT MANAGEMENT & FILE UPLOAD
+      // ----------------------------------------------------
+      const handleFileSelect = (e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+
+        const file = files[0];
+        const defaultName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+        const inferredSlug = defaultName.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+        setUploadName(defaultName);
+        setUploadSlug(inferredSlug);
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const text = event.target.result;
+          setUploadRawText(text);
+
+          const parsed = parseMarkdownQuestions(text, inferredSlug, defaultName);
+          setParsedPreviewCount(parsed.questions.length);
+          setUploadWarnings(parsed.warnings);
+          setUploadErrors(parsed.errors);
+        };
+        reader.readAsText(file);
+      };
+
+      const handleRawTextChange = (text) => {
+        setUploadRawText(text);
+        const slug = uploadSlug || "custom";
+        const name = uploadName || "Custom Subject";
+        const parsed = parseMarkdownQuestions(text, slug, name);
+        setParsedPreviewCount(parsed.questions.length);
+        setUploadWarnings(parsed.warnings);
+        setUploadErrors(parsed.errors);
+      };
+
+      const handleSaveSubject = async (overrideConfirm = false) => {
+        if (!uploadRawText.trim()) {
+          alert("Please upload a file or paste Markdown text.");
+          return;
+        }
+
+        const slug = (uploadSlug || uploadName.toLowerCase().replace(/[^a-z0-9]/g, "")).trim();
+        const name = (uploadName || slug.toUpperCase()).trim();
+
+        if (!slug) {
+          alert("Please provide a valid subject slug or name.");
+          return;
+        }
+
+        const parsed = parseMarkdownQuestions(uploadRawText, slug, name);
+        if (parsed.questions.length === 0) {
+          alert("Cannot save: No valid questions were parsed from the Markdown.");
+          return;
+        }
+
+        // Check if subject already exists
+        const existingSubjectData = subjectsData[slug];
+        if (existingSubjectData && !overrideConfirm) {
+          setReuploadConfirmModal({
+            slug,
+            name,
+            oldQuestionsCount: existingSubjectData.questions.length,
+            newQuestionsCount: parsed.questions.length,
+            parsedQuestions: parsed.questions
+          });
+          return;
+        }
+
+        // Reconcile stable identities with previous question bank
+        const oldQuestions = existingSubjectData ? existingSubjectData.questions : [];
+        const reconciledQuestions = reconcileQuestions(oldQuestions, parsed.questions, slug);
+
+        const newSubjectObj = {
+          slug,
+          name,
+          raw: uploadRawText,
+          questions: reconciledQuestions,
+          updatedAt: Date.now()
+        };
+
+        // Consolidated update to subjects:all
+        const updatedSubjectsAll = {
+          ...subjectsData,
+          [slug]: newSubjectObj
+        };
+
+        setSubjectsData(updatedSubjectsAll);
+        await StorageService.set(STORAGE_KEYS.SUBJECTS_ALL, updatedSubjectsAll);
+
+        // Reset upload form
+        setUploadName("");
+        setUploadSlug("");
+        setUploadRawText("");
+        setParsedPreviewCount(0);
+        setUploadWarnings([]);
+        setUploadErrors([]);
+        setReuploadConfirmModal(null);
+
+        alert(`Successfully saved "${name}" with ${reconciledQuestions.length} questions into subjects:all!`);
+      };
+
+      const handleDeleteSubject = async (slug) => {
+        if (!confirm(`Are you sure you want to delete the subject "${slug}"? Its questions will no longer appear in interview sessions.`)) {
+          return;
+        }
+
+        const updatedSubjectsAll = { ...subjectsData };
+        delete updatedSubjectsAll[slug];
+
+        setSubjectsData(updatedSubjectsAll);
+        await StorageService.set(STORAGE_KEYS.SUBJECTS_ALL, updatedSubjectsAll);
+
+        // If session was on a question from deleted subject, pick next
+        const remainingPool = Object.values(updatedSubjectsAll).flatMap(d => d.questions || []);
+        if (remainingPool.length > 0) {
+          initFreshSession(remainingPool, historyMap);
+        }
+      };
+
+      // ----------------------------------------------------
+      // RENDER VIEWS
+      // ----------------------------------------------------
+      if (isLoading) {
+        return (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <div className="size-12 border-2 border-black border-t-[#ff5a24] rounded-full animate-spin mx-auto"></div>
+              <p className="font-serif text-xl text-black">Hydrating Mock Interview Engine...</p>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="min-h-screen flex flex-col justify-between">
+          {/* Header Bar matching doc/generated-page.html */}
+          <header className="flex w-full z-20 pt-6 pr-6 pb-6 pl-6 sm:px-10 lg:px-16 items-center justify-between border-b border-black/10 bg-white/40 backdrop-blur-md sticky top-0">
+            <div className="flex items-center gap-4">
+              <a 
+                href="#" 
+                onClick={(e) => { e.preventDefault(); setCurrentView("interview"); }}
+                className="select-none text-2xl sm:text-3xl font-medium text-black tracking-[0.22em] flex items-center gap-2"
+              >
+                <span>MOCKFLOW</span>
+                <span className="size-2.5 rounded-full bg-[#ff5a24] shadow-[0_0_0_1px_rgba(255,90,36,0.2)] animate-pulse"></span>
+              </a>
+              <span className="hidden sm:inline-block text-xs font-semibold tracking-wider uppercase px-2.5 py-1 rounded bg-black/5 text-[#222]">
+                Personal Prep
+              </span>
+            </div>
+
+            <nav className="flex items-center gap-4 sm:gap-8 text-sm sm:text-base font-medium text-black">
+              <button
+                onClick={() => setCurrentView("interview")}
+                className={`transition pb-1 flex items-center gap-2 ${
+                  currentView === "interview" 
+                    ? "text-[#ff5a24] border-b-2 border-[#ff5a24]" 
+                    : "hover:text-[#ff5a24]"
+                }`}
+              >
+                <Icon name="sparkles" className="size-4" />
+                <span>Interview</span>
+              </button>
+
+              <button
+                onClick={() => setCurrentView("manage")}
+                className={`transition pb-1 flex items-center gap-2 ${
+                  currentView === "manage" 
+                    ? "text-[#ff5a24] border-b-2 border-[#ff5a24]" 
+                    : "hover:text-[#ff5a24]"
+                }`}
+              >
+                <Icon name="layers" className="size-4" />
+                <span>Subjects ({subjects.length})</span>
+              </button>
+
+              <button
+                onClick={() => setCurrentView("history")}
+                className={`transition pb-1 flex items-center gap-2 ${
+                  currentView === "history" 
+                    ? "text-[#ff5a24] border-b-2 border-[#ff5a24]" 
+                    : "hover:text-[#ff5a24]"
+                }`}
+              >
+                <Icon name="bar-chart" className="size-4" />
+                <span>Analytics</span>
+              </button>
+
+              {session.askedQueue.length > 0 && (
+                <button
+                  onClick={handleEndSession}
+                  className="rounded-lg border border-black/25 bg-[#111111] px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-medium text-white shadow transition hover:bg-black"
+                >
+                  End Session
+                </button>
+              )}
+            </nav>
+          </header>
+
+          {/* Non-blocking persistence warning */}
+          {persistenceNotice && (
+            <div className="bg-[#fff3cd] border-b border-[#ffeeba] text-[#856404] px-6 py-2.5 text-sm flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Icon name="alert-triangle" className="size-4" />
+                <span>{persistenceNotice}</span>
+              </div>
+              <button onClick={() => setPersistenceNotice(null)} className="text-sm font-bold">✕</button>
+            </div>
+          )}
+
+          {/* Main Views Container */}
+          <main className="w-full max-w-[90rem] mx-auto px-4 sm:px-8 lg:px-12 py-8 flex-1">
+            
+            {/* ==================================================== */}
+            {/* VIEW 1: INTERVIEW SCREEN */}
+            {/* ==================================================== */}
+            {currentView === "interview" && (
+              <div className="space-y-8 animate-fadeIn">
+                {/* Header Information matching Section 10.4 with Session Question Number */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border border-black/10 bg-white/60 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.03)]">
+                  <div>
+                    <div className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-[#222] mb-1">
+                      <span className="size-2.5 bg-[#ff5a24] shadow-[0_0_0_1px_rgba(255,90,36,0.18)]"></span>
+                      <span>MOCK INTERVIEW • ACTIVE POOL ({combinedPool.length} TOTAL)</span>
+                    </div>
+                    <div className="flex items-center gap-4 flex-wrap">
+                      <h2 className="text-2xl font-serif text-black">
+                        Question <span className="text-[#ff5a24]">{session.questionNumber || 1}</span>
+                      </h2>
+                      <div className="text-sm text-[#444] bg-white/80 px-3 py-1 rounded-full border border-black/10">
+                        Mixed: <span className="font-medium text-black">{representedSubjects.join(" • ") || "None"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-6">
+                    <div className="text-right">
+                      <div className="text-xs text-[#666] uppercase tracking-wider font-semibold">Running Score</div>
+                      <div className="text-xl sm:text-2xl font-medium text-black">
+                        {session.score.right} <span className="text-[#15803d]">✅</span> / {session.score.wrong} <span className="text-[#b91c1c]">❌</span>
+                      </div>
+                    </div>
+                    <div className="h-10 w-px bg-black/10 hidden sm:block"></div>
+                    <div className="text-right hidden sm:block">
+                      <div className="text-xs text-[#666] uppercase tracking-wider font-semibold">Accuracy</div>
+                      <div className="text-xl sm:text-2xl font-serif text-[#ff5a24]">
+                        {session.score.right + session.score.wrong > 0 
+                          ? `${Math.round((session.score.right / (session.score.right + session.score.wrong)) * 100)}%` 
+                          : "0%"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Main Question & Answer Card */}
+                {currentQuestion ? (
+                  <div className="rounded-3xl border border-black/15 bg-white/85 p-6 sm:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.06)] backdrop-blur-md relative overflow-hidden">
+                    <div className="absolute right-8 top-8 hidden md:grid grid-cols-4 gap-2 opacity-30 pointer-events-none">
+                      {[...Array(8)].map((_, i) => (
+                        <span key={i} className="size-1 rounded-full bg-black"></span>
+                      ))}
+                    </div>
+
+                    {/* Session Question Number & Subject Tag */}
+                    <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl sm:text-2xl font-serif font-medium text-black">
+                          Question <span className="text-[#ff5a24]">{session.questionNumber || 1}</span>
+                        </span>
+                        <span className="h-4 w-px bg-black/15"></span>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#111111] text-white text-xs font-semibold uppercase tracking-wider">
+                          <span className="size-2 rounded-full bg-[#ff5a24]"></span>
+                          <span>{currentQuestion.subjectName || currentQuestion.subject}</span>
+                        </div>
+                      </div>
+
+                      {historyMap[currentQuestion.id] && (
+                        <div className="flex items-center gap-3 text-xs text-[#444] bg-black/5 px-3 py-1 rounded-full">
+                          <span>Times Seen: <strong>{historyMap[currentQuestion.id].timesSeen}</strong></span>
+                          <span>•</span>
+                          <span>Wrong: <strong className="text-[#b91c1c]">{historyMap[currentQuestion.id].timesWrong}</strong></span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1 text-[#ff5a24] font-semibold">
+                            <Icon name="flame" className="size-3.5" />
+                            <span>Streak: {historyMap[currentQuestion.id].currentStreak}</span>
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Question Statement */}
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-black leading-tight mb-8">
+                      {formatQuestionText(currentQuestion.question)}
+                    </h1>
+
+                    {/* State: Answering */}
+                    {session.phase === "answering" && (
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between gap-3">
+                            <label className="text-xs font-semibold uppercase tracking-wider text-[#555] flex items-center gap-2">
+                              <span>Your Answer</span>
+                              <span className="text-[#888] font-normal normal-case">
+                                ({userAnswer.trim().split(/\s+/).filter(Boolean).length} words)
+                              </span>
+                            </label>
+                          </div>
+
+                          <div>
+                            <textarea
+                              value={userAnswer}
+                              onChange={(e) => setUserAnswer(e.target.value)}
+                              placeholder="Type your technical answer here..."
+                              rows={7}
+                              autoComplete="off"
+                              autoCorrect="on"
+                              spellCheck="true"
+                              className="w-full p-5 rounded-2xl border border-black/20 bg-white/95 text-black placeholder:text-black/35 focus:outline-none focus:border-[#ff5a24] focus:ring-2 focus:ring-[#ff5a24]/20 transition text-base sm:text-lg leading-relaxed shadow-inner"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Actions Row */}
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2">
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={handleIDontKnow}
+                              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border border-black/25 bg-white/50 text-black text-sm font-medium hover:bg-white transition"
+                              title="Immediately marks question as wrong, updates history once, reveals answer, and enables Next Question"
+                            >
+                              <Icon name="help-circle" className="size-4" />
+                              <span>I Don't Know / Reveal</span>
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={handleSubmitAnswer}
+                              className="inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-xl bg-[#111111] hover:bg-black text-white text-base font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_12px_24px_rgba(0,0,0,0.12)] border border-black/25 transition w-full sm:w-auto"
+                            >
+                              <span>Submit Answer</span>
+                              <Icon name="arrow-right" className="size-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* States: Revealed & Graded */}
+                    {(session.phase === "revealed" || session.phase === "graded") && (
+                      <div className="space-y-8 animate-fadeIn">
+                        {/* Answers Side-by-Side / Stacked */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          {/* User's Submitted Answer */}
+                          <div className="rounded-2xl border border-black/10 bg-white/70 p-6 shadow-sm">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-xs font-semibold uppercase tracking-wider text-[#666]">
+                                Your Response
+                              </span>
+                              <span className="text-xs text-[#888]">
+                                {userAnswer.trim().split(/\s+/).filter(Boolean).length} words
+                              </span>
+                            </div>
+                            <div className="whitespace-pre-wrap font-sans text-black/90 text-base leading-relaxed bg-white/60 p-4 rounded-xl border border-black/5 min-h-[120px]">
+                              {userAnswer.trim() || <span className="italic text-black/40">(No answer given)</span>}
+                            </div>
+                          </div>
+
+                          {/* Official Stored Correct Answer */}
+                          <div className="rounded-2xl border border-black/25 bg-[#141514] text-white p-6 shadow-lg">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-xs font-semibold uppercase tracking-wider text-[#ff6330] flex items-center gap-1.5">
+                                <span className="size-2 rounded-full bg-[#ff6330]"></span>
+                                <span>Official Reference Answer</span>
+                              </span>
+                            </div>
+                            <div className="whitespace-pre-wrap font-sans text-white/95 text-base leading-relaxed bg-black/40 p-4 rounded-xl border border-white/10 min-h-[120px] font-normal selection:bg-[#ff5a24]">
+                              {currentQuestion.answer}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Grading Controls Box */}
+                        <div className="rounded-2xl border border-black/15 bg-white/90 p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
+                          <div>
+                            <p className="font-serif text-xl text-black">
+                              {session.phase === "graded" ? "Question Graded" : "Evaluate your response:"}
+                            </p>
+                            <p className="text-sm text-[#555] mt-1">
+                              {session.phase === "graded"
+                                ? `Recorded as ${lastGradedOutcome === "right" ? "✅ Correct" : "❌ Wrong"}. Ready to advance.`
+                                : "Did your answer capture the core concepts? Self-mark honestly to train the adaptive selector."}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-4 flex-wrap">
+                            {session.phase === "revealed" && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSelfGrade(true)}
+                                  className="inline-flex items-center gap-2 bg-[#15803d] hover:bg-[#166534] text-white font-medium px-6 py-3 rounded-xl shadow-md transition"
+                                >
+                                  <Icon name="check" className="size-4" />
+                                  <span>✅ Correct</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSelfGrade(false)}
+                                  className="inline-flex items-center gap-2 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium px-6 py-3 rounded-xl shadow-md transition"
+                                >
+                                  <Icon name="x" className="size-4" />
+                                  <span>❌ Wrong</span>
+                                </button>
+                              </>
+                            )}
+
+                            {session.phase === "graded" && (
+                              <button
+                                type="button"
+                                onClick={handleNextQuestion}
+                                className="inline-flex items-center gap-3 bg-[#ff5a24] hover:bg-[#e04816] text-white font-medium px-8 py-3.5 rounded-xl shadow-lg transition"
+                              >
+                                <span>Next Question</span>
+                                <Icon name="arrow-right" className="size-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-20 bg-white/60 rounded-3xl border border-black/10 p-12 space-y-6">
+                    <Icon name="book-open" className="size-16 text-[#ff5a24] mx-auto" />
+                    <h2 className="font-serif text-3xl text-black">Your Question Bank is Empty</h2>
+                    <p className="max-w-md mx-auto text-[#555]">
+                      Please upload one or more Markdown question files (.md) to generate your mixed interview pool.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentView("manage")}
+                      className="bg-[#111111] text-white px-8 py-3.5 rounded-xl font-medium shadow hover:bg-black transition inline-flex items-center gap-2"
+                    >
+                      <Icon name="upload" className="size-4" />
+                      <span>Upload Question Files</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ==================================================== */}
+            {/* VIEW 2: MANAGE SUBJECTS SCREEN */}
+            {/* ==================================================== */}
+            {currentView === "manage" && (
+              <div className="space-y-12 animate-fadeIn">
+                <div className="max-w-3xl">
+                  <div className="mb-3 flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-[#222]">
+                    <span className="size-2.5 bg-[#ff5a24]"></span>
+                    <span>KNOWLEDGE INGESTION • SUBJECTS:ALL</span>
+                  </div>
+                  <h1 className="text-4xl sm:text-5xl font-serif text-black leading-tight">
+                    Manage & Curate <span className="italic text-[#ff5a24]">Subject Banks</span>
+                  </h1>
+                  <p className="mt-3 text-lg text-[#444] leading-relaxed">
+                    Upload markdown files for subjects like OS, DBMS, OOP, Networking, and JavaScript. 
+                    Reconciled question keys ensure your learning history and streaks are never scrambled upon re-upload.
+                  </p>
+                </div>
+
+                {/* Upload Form Card */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-2 rounded-3xl border border-black/15 bg-white/80 p-8 shadow-sm space-y-6">
+                    <h3 className="font-serif text-2xl text-black">Upload New Subject</h3>
+
+                    {/* Drag and drop input */}
+                    <div className="border-2 border-dashed border-black/20 hover:border-[#ff5a24] rounded-2xl p-8 text-center transition bg-white/50 cursor-pointer relative">
+                      <input 
+                        type="file" 
+                        accept=".md,.txt" 
+                        onChange={handleFileSelect}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      <Icon name="upload" className="size-10 text-[#ff5a24] mx-auto mb-3" />
+                      <p className="font-medium text-black">Choose a .md question file or drag it here</p>
+                      <p className="text-xs text-[#777] mt-1">Expected format: ### Q1. Question title followed by **A.** Answer</p>
+                    </div>
+
+                    {/* Metadata fields */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-[#333] mb-1">
+                          Subject Display Name
+                        </label>
+                        <input
+                          type="text"
+                          value={uploadName}
+                          onChange={(e) => setUploadName(e.target.value)}
+                          placeholder="e.g. Operating Systems"
+                          className="w-full px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black text-sm focus:outline-none focus:border-[#ff5a24]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-[#333] mb-1">
+                          Subject Slug (Unique Key)
+                        </label>
+                        <input
+                          type="text"
+                          value={uploadSlug}
+                          onChange={(e) => setUploadSlug(e.target.value)}
+                          placeholder="e.g. os"
+                          className="w-full px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black text-sm focus:outline-none focus:border-[#ff5a24]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Paste markdown fallback */}
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-[#333] mb-1">
+                        Or Paste Raw Markdown Content
+                      </label>
+                      <textarea
+                        value={uploadRawText}
+                        onChange={(e) => handleRawTextChange(e.target.value)}
+                        placeholder="### Q1. What is a mutex?&#10;&#10;**A.** A mutex is a mutual exclusion lock..."
+                        rows={6}
+                        className="w-full p-4 rounded-xl border border-black/20 bg-white text-black text-sm font-mono focus:outline-none focus:border-[#ff5a24]"
+                      />
+                    </div>
+
+                    {/* Parse Preview Status */}
+                    {uploadRawText.trim() && (
+                      <div className="p-4 rounded-xl border border-black/10 bg-[#fbfbfa] space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium text-black">Parsed Questions Recognized:</span>
+                          <span className="font-bold text-[#ff5a24] bg-white px-2.5 py-0.5 rounded-full border border-black/10">
+                            {parsedPreviewCount} questions
+                          </span>
+                        </div>
+                        {uploadWarnings.map((w, idx) => (
+                          <p key={idx} className="text-xs text-[#b45309] flex items-center gap-1.5">
+                            <Icon name="alert-triangle" className="size-3.5 shrink-0" />
+                            <span>{w}</span>
+                          </p>
+                        ))}
+                        {uploadErrors.map((err, idx) => (
+                          <p key={idx} className="text-xs text-[#b91c1c] font-medium flex items-center gap-1.5">
+                            <Icon name="x" className="size-3.5 shrink-0" />
+                            <span>{err}</span>
+                          </p>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSubject(false)}
+                        disabled={parsedPreviewCount === 0}
+                        className="bg-[#111111] hover:bg-black disabled:opacity-40 text-white px-8 py-3 rounded-xl font-medium transition shadow flex items-center gap-2"
+                      >
+                        <Icon name="check" className="size-4" />
+                        <span>Save to subjects:all</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Format Guidelines Sidebar */}
+                  <div className="rounded-3xl border border-black/15 bg-white/60 p-8 shadow-sm space-y-6">
+                    <h3 className="font-serif text-xl text-black">Format Guidelines</h3>
+                    <div className="space-y-4 text-xs text-[#444] leading-relaxed">
+                      <div className="p-3 bg-white rounded-xl border border-black/10">
+                        <p className="font-bold text-black mb-1">Standard Question Heading:</p>
+                        <code className="text-[#ff5a24] font-mono">### Q1. What is ACID?</code>
+                      </div>
+                      <div className="p-3 bg-white rounded-xl border border-black/10">
+                        <p className="font-bold text-black mb-1">Standard Answer Marker:</p>
+                        <code className="text-[#ff5a24] font-mono">**A.** Atomicity, Consistency...</code>
+                      </div>
+                      <div className="p-3 bg-white rounded-xl border border-black/10">
+                        <p className="font-bold text-black mb-1">Code Fences Protected:</p>
+                        <p>Code blocks enclosed in ``` are fence-aware; triple-dashes and hash lines inside are never treated as boundaries.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Existing Uploaded Subjects */}
+                <div className="space-y-6">
+                  <h3 className="font-serif text-2xl text-black">Saved Subjects in subjects:all</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {subjects.map(s => {
+                      const data = subjectsData[s.slug];
+                      const qCount = data ? data.questions.length : 0;
+                      return (
+                        <div key={s.slug} className="rounded-2xl border border-black/15 bg-white/80 p-6 shadow-sm flex flex-col justify-between space-y-4">
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs font-semibold uppercase tracking-wider text-[#ff5a24]">
+                                {s.slug}
+                              </span>
+                              <span className="text-xs text-[#777]">
+                                {data ? new Date(data.updatedAt).toLocaleDateString() : ""}
+                              </span>
+                            </div>
+                            <h4 className="font-serif text-xl text-black">{s.name}</h4>
+                            <p className="text-sm text-[#555] mt-1">{qCount} practice questions loaded</p>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-4 border-t border-black/10">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (data) {
+                                  setUploadName(data.name);
+                                  setUploadSlug(data.slug);
+                                  setUploadRawText(data.raw || "");
+                                  handleRawTextChange(data.raw || "");
+                                }
+                              }}
+                              className="text-xs font-medium text-black hover:text-[#ff5a24] flex items-center gap-1"
+                            >
+                              <Icon name="rotate-ccw" className="size-3.5" />
+                              <span>Edit / Re-upload</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteSubject(s.slug)}
+                              className="text-xs text-[#b91c1c] hover:underline flex items-center gap-1"
+                            >
+                              <Icon name="trash" className="size-3.5" />
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ==================================================== */}
+            {/* VIEW 3: PERFORMANCE HISTORY / ANALYTICS */}
+            {/* ==================================================== */}
+            {currentView === "history" && (
+              <div className="space-y-8 animate-fadeIn">
+                <div className="max-w-3xl">
+                  <div className="mb-3 flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-[#222]">
+                    <span className="size-2.5 bg-[#ff5a24]"></span>
+                    <span>MASTERY DASHBOARD • HISTORY:ALL</span>
+                  </div>
+                  <h1 className="text-4xl sm:text-5xl font-serif text-black leading-tight">
+                    Adaptive Learning <span className="italic text-[#ff5a24]">History</span>
+                  </h1>
+                  <p className="mt-2 text-base text-[#555]">
+                    Review performance metrics across all subjects. Questions answered incorrectly receive higher selection weights, while consecutive streaks fade over time.
+                  </p>
+                </div>
+
+                {/* High level counters */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="p-5 rounded-2xl border border-black/10 bg-white/70">
+                    <div className="text-xs text-[#666] font-semibold uppercase">Total In Bank</div>
+                    <div className="text-3xl font-serif text-black mt-2">{combinedPool.length}</div>
+                  </div>
+                  <div className="p-5 rounded-2xl border border-black/10 bg-white/70">
+                    <div className="text-xs text-[#666] font-semibold uppercase">Questions Seen</div>
+                    <div className="text-3xl font-serif text-black mt-2">
+                      {Object.keys(historyMap).length}
+                    </div>
+                  </div>
+                  <div className="p-5 rounded-2xl border border-black/10 bg-white/70">
+                    <div className="text-xs text-[#666] font-semibold uppercase">Needs Practice (Wrong &gt; 0)</div>
+                    <div className="text-3xl font-serif text-[#b91c1c] mt-2">
+                      {Object.values(historyMap).filter(h => h.timesWrong > 0).length}
+                    </div>
+                  </div>
+                  <div className="p-5 rounded-2xl border border-black/10 bg-white/70">
+                    <div className="text-xs text-[#666] font-semibold uppercase">Mastered (Streak &gt;= 5)</div>
+                    <div className="text-3xl font-serif text-[#15803d] mt-2">
+                      {Object.values(historyMap).filter(h => h.currentStreak >= 5).length}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Detailed Questions List */}
+                <div className="rounded-3xl border border-black/15 bg-white/80 p-6 sm:p-8 shadow-sm space-y-4">
+                  <h3 className="font-serif text-2xl text-black mb-4">Question Breakdown</h3>
+                  <div className="divide-y divide-black/10 overflow-x-auto">
+                    {combinedPool.map(q => {
+                      const h = historyMap[q.id];
+                      return (
+                        <div key={q.id} className="py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                          <div className="max-w-xl">
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-black/5 text-[#444] mr-2">
+                              {q.subjectName || q.subject}
+                            </span>
+                            <span className="text-sm font-medium text-black">{formatQuestionText(q.question)}</span>
+                          </div>
+                          <div className="flex items-center gap-4 text-xs shrink-0">
+                            <span>Seen: <strong>{h ? h.timesSeen : 0}</strong></span>
+                            <span>Wrong: <strong className="text-[#b91c1c]">{h ? h.timesWrong : 0}</strong></span>
+                            <span className="text-[#ff5a24] font-semibold">Streak: {h ? h.currentStreak : 0}</span>
+                            <span className="px-2 py-1 rounded bg-black/5">
+                              Weight: {calculateQuestionWeight(q.id, historyMap).toFixed(1)}x
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ==================================================== */}
+            {/* VIEW 4: SESSION SUMMARY SCREEN */}
+            {/* ==================================================== */}
+            {currentView === "summary" && (
+              <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn">
+                <div className="text-center space-y-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff5a24]/10 text-[#ff5a24] text-xs font-semibold uppercase tracking-wider">
+                    <Icon name="check-circle" className="size-4" />
+                    <span>Session Concluded</span>
+                  </div>
+                  <h1 className="text-4xl sm:text-5xl font-serif text-black">Interview Session Summary</h1>
+                  <p className="text-base text-[#555]">
+                    Mixed interview across {representedSubjects.join(", ")}
+                  </p>
+                </div>
+
+                {/* Score Big Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <div className="p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
+                    <div className="text-xs font-semibold uppercase text-[#666]">Total Answered</div>
+                    <div className="text-5xl font-serif text-black mt-3">
+                      {session.score.right + session.score.wrong}
+                    </div>
+                  </div>
+                  <div className="p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
+                    <div className="text-xs font-semibold uppercase text-[#15803d]">Correct Marks</div>
+                    <div className="text-5xl font-serif text-[#15803d] mt-3">
+                      {session.score.right}
+                    </div>
+                  </div>
+                  <div className="p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
+                    <div className="text-xs font-semibold uppercase text-[#b91c1c]">Missed / Wrong</div>
+                    <div className="text-5xl font-serif text-[#b91c1c] mt-3">
+                      {session.score.wrong}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Missed questions section */}
+                {session.sessionMissedQuestions.length > 0 ? (
+                  <div className="rounded-3xl border border-black/15 bg-white/80 p-8 shadow-sm space-y-6">
+                    <h3 className="font-serif text-2xl text-black">Questions to Review</h3>
+                    <div className="space-y-6">
+                      {session.sessionMissedQuestions.map((item, idx) => (
+                        <div key={idx} className="p-5 rounded-2xl border border-black/10 bg-[#fafafa] space-y-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold px-2 py-0.5 rounded bg-black/5 text-[#222]">
+                              {item.question.subjectName}
+                            </span>
+                            <h4 className="font-medium text-base text-black">{formatQuestionText(item.question.question)}</h4>
+                          </div>
+                          <div className="text-xs text-[#555] bg-white p-3 rounded-lg border border-black/5">
+                            <strong>Your Answer:</strong> {item.userAnswer}
+                          </div>
+                          <div className="text-xs text-white bg-[#111] p-3 rounded-lg border border-black/10">
+                            <strong className="text-[#ff5a24]">Correct Answer:</strong> {item.question.answer}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-8 rounded-2xl border border-black/10 bg-white text-center">
+                    <p className="font-serif text-xl text-[#15803d]">Flawless round! Zero questions marked wrong.</p>
+                  </div>
+                )}
+
+                {/* Buttons */}
+                <div className="flex items-center justify-center gap-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={handleRestartFromSummary}
+                    className="bg-[#111111] hover:bg-black text-white px-8 py-4 rounded-xl font-medium shadow-lg transition flex items-center gap-2"
+                  >
+                    <Icon name="rotate-ccw" className="size-4" />
+                    <span>Start New Session</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentView("manage")}
+                    className="border border-black/25 bg-white px-6 py-4 rounded-xl font-medium hover:bg-black/5 transition"
+                  >
+                    Manage Subjects
+                  </button>
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* ==================================================== */}
+          {/* RE-UPLOAD CONFIRMATION MODAL */}
+          {/* ==================================================== */}
+          {reuploadConfirmModal && (
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl border border-black/20 p-8 max-w-lg w-full shadow-2xl space-y-5">
+                <div className="flex items-center gap-3 text-[#ff5a24]">
+                  <Icon name="alert-triangle" className="size-6" />
+                  <h3 className="font-serif text-2xl text-black">Reconcile Subject Upload?</h3>
+                </div>
+                <p className="text-sm text-[#444] leading-relaxed">
+                  A subject with slug <code className="font-bold text-black bg-black/5 px-1 py-0.5 rounded">{reuploadConfirmModal.slug}</code> already exists with {reuploadConfirmModal.oldQuestionsCount} questions.
+                </p>
+                <p className="text-xs text-[#666] leading-relaxed bg-[#f6f5f2] p-3 rounded-xl border border-black/10">
+                  Stable Question Reconciliation will preserve existing streaks and history for matching questions, assign new IDs for genuinely new material, and leave deleted question history orphaned without misattributing it.
+                </p>
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setReuploadConfirmModal(null)}
+                    className="px-5 py-2.5 rounded-xl border border-black/20 text-sm font-medium hover:bg-black/5"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSaveSubject(true)}
+                    className="px-6 py-2.5 rounded-xl bg-[#ff5a24] text-white text-sm font-medium hover:bg-[#e04816] shadow"
+                  >
+                    Confirm & Reconcile
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==================================================== */}
+          {/* RESUME SESSION MODAL */}
+          {/* ==================================================== */}
+          {resumePromptModal && (
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl border border-black/20 p-8 max-w-md w-full shadow-2xl space-y-5 text-center">
+                <Icon name="sparkles" className="size-10 text-[#ff5a24] mx-auto" />
+                <h3 className="font-serif text-2xl text-black">Resume Unfinished Session?</h3>
+                <p className="text-sm text-[#555] leading-relaxed">
+                  You have an in-progress interview session with score {resumePromptModal.session.score.right} ✅ / {resumePromptModal.session.score.wrong} ❌. Would you like to resume where you left off?
+                </p>
+                <div className="flex justify-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      StorageService.remove(STORAGE_KEYS.SESSION_CURRENT);
+                      setResumePromptModal(null);
+                      initFreshSession(combinedPool, historyMap);
+                    }}
+                    className="px-5 py-2.5 rounded-xl border border-black/20 text-sm font-medium hover:bg-black/5"
+                  >
+                    Start Fresh
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSession(resumePromptModal.session);
+                      setResumePromptModal(null);
+                      setCurrentView("interview");
+                    }}
+                    className="px-6 py-2.5 rounded-xl bg-[#111111] text-white text-sm font-medium hover:bg-black shadow"
+                  >
+                    Resume Session
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Footer */}
+          <footer className="w-full py-6 text-center text-xs text-[#777] border-t border-black/10 mt-12">
+            Mockflow Technical Interview Simulator • Adaptive Learning Engine • All Questions Mixed Across Active Subjects
+          </footer>
+        </div>
+      );
+    }
+
+    // Render the React App
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

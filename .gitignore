@@ -1,0 +1,15 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# AI assistant config (not part of the app)
+AGENTS.md
+.agents/
