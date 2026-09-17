@@ -22,13 +22,114 @@
 
 
   <style>
+    /* ==========================================
+       THEME TOKENS — light (default) & dark
+       ========================================== */
+    :root {
+      --bg-page: #f4f3f0;
+      --bg-card: rgba(255,255,255,0.88);
+      --bg-card-solid: #ffffff;
+      --bg-input: #ffffff;
+      --bg-header: rgba(255,255,255,0.82);
+      --bg-subtle: rgba(0,0,0,0.045);
+      --bg-code: #f8f7f5;
+      --border: rgba(0,0,0,0.09);
+      --border-med: rgba(0,0,0,0.13);
+      --border-strong: rgba(0,0,0,0.22);
+      --text-primary: #0d0d0d;
+      --text-secondary: #424242;
+      --text-muted: #606060;
+      --text-faint: #868686;
+      --text-placeholder: rgba(0,0,0,0.32);
+      --scrollbar-track: rgba(0,0,0,0.03);
+      --scrollbar-thumb: rgba(0,0,0,0.16);
+      --scrollbar-thumb-hover: rgba(0,0,0,0.28);
+      /* Button tokens */
+      --btn-primary-bg: #1c1f23;
+      --btn-primary-bg-hover: #111316;
+      --btn-primary-bg-active: #0a0c0e;
+      --btn-primary-border: rgba(0,0,0,0.30);
+      --btn-primary-border-hover: rgba(0,0,0,0.40);
+      --btn-primary-text: #ffffff;
+      --btn-primary-shadow: 0 1px 3px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+      --btn-secondary-bg: rgba(255,255,255,0.72);
+      --btn-secondary-bg-hover: rgba(255,255,255,0.92);
+      --btn-secondary-bg-active: rgba(230,230,230,0.9);
+      --btn-secondary-border: rgba(0,0,0,0.18);
+      --btn-secondary-border-hover: rgba(0,0,0,0.28);
+      --btn-secondary-text: #1a1a1a;
+      --btn-secondary-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    html.dark {
+      --bg-page: #151718;
+      --bg-card: rgba(30,32,35,0.97);
+      --bg-card-solid: #1e2023;
+      --bg-input: #191b1d;
+      --bg-header: rgba(19,21,22,0.94);
+      --bg-subtle: rgba(255,255,255,0.06);
+      --bg-code: #1a1d20;
+      --border: rgba(255,255,255,0.075);
+      --border-med: rgba(255,255,255,0.10);
+      --border-strong: rgba(255,255,255,0.17);
+      --text-primary: #e5e7ea;
+      --text-secondary: #a2a9b0;
+      --text-muted: #707880;
+      --text-faint: #505860;
+      --text-placeholder: rgba(255,255,255,0.28);
+      --scrollbar-track: rgba(255,255,255,0.03);
+      --scrollbar-thumb: rgba(255,255,255,0.12);
+      --scrollbar-thumb-hover: rgba(255,255,255,0.22);
+      /* Button tokens - Dark Mode Hierarchy */
+      --btn-primary-bg: #444b55;
+      --btn-primary-bg-hover: #4f5763;
+      --btn-primary-bg-active: #3a4049;
+      --btn-primary-border: rgba(255,255,255,0.20);
+      --btn-primary-border-hover: rgba(255,255,255,0.28);
+      --btn-primary-text: #ffffff;
+      --btn-primary-shadow: 0 1px 3px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.10);
+      --btn-secondary-bg: #2d3239;
+      --btn-secondary-bg-hover: #363c45;
+      --btn-secondary-bg-active: #25292f;
+      --btn-secondary-border: rgba(255,255,255,0.14);
+      --btn-secondary-border-hover: rgba(255,255,255,0.22);
+      --btn-secondary-text: #d6d9de;
+      --btn-secondary-shadow: 0 1px 2px rgba(0,0,0,0.25);
+    }
+
+    /* ==========================================
+       BASE STYLES & BACKGROUND CROSSFADE
+       ========================================== */
     body {
       font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #f6f5f2;
+      background-color: var(--bg-page);
       background-image: radial-gradient(circle at 50% 14%, rgba(255,255,255,0.96), rgba(246,245,242,0.76) 48%, rgba(238,236,232,0.92) 100%);
       background-attachment: fixed;
       background-repeat: no-repeat;
       background-size: cover;
+      color: var(--text-primary);
+      position: relative;
+      min-height: 100vh;
+      transition: background-color 200ms ease, color 200ms ease;
+    }
+
+    /* Seamless dark-mode radial gradient crossfade layer (prevents gradient jump) */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle at 50% 14%, rgba(22,24,26,0.99), rgba(19,21,22,0.98) 48%, rgba(16,18,19,0.99) 100%);
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      background-size: cover;
+      opacity: 0;
+      pointer-events: none;
+      z-index: -1;
+      transition: opacity 200ms ease;
+    }
+
+    html.dark body::after {
+      opacity: 1;
     }
     
     .font-serif {
@@ -39,22 +140,87 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Subtle custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(0,0,0,0.03);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(0,0,0,0.18);
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(0,0,0,0.3);
+    /* ==========================================
+       SMOOTH THEME & INTERACTIVE TRANSITIONS
+       (Unified 200ms ease across all theme-dependent elements)
+       ========================================== */
+    *, *::before, *::after {
+      transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+      transition-duration: 200ms;
+      transition-timing-function: ease;
     }
 
+    /* Key theme surfaces & interactive controls */
+    header {
+      transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+    }
+
+    input[type="text"],
+    textarea {
+      transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+    }
+
+    button,
+    a {
+      transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+    }
+
+    .transition {
+      transition-property: background-color, border-color, color, fill, stroke, box-shadow, opacity;
+      transition-duration: 200ms;
+      transition-timing-function: ease;
+    }
+
+    svg, svg path, svg circle, svg line, svg polyline {
+      transition: color 200ms ease, stroke 200ms ease, fill 200ms ease;
+    }
+
+    .score-icon-correct,
+    .score-icon-wrong {
+      transition: color 200ms ease;
+    }
+
+    /* Exclude keyframe animation classes so transitions do not interfere */
+    .animate-spin,
+    .animate-pulse,
+    .animate-pulse-subtle,
+    .animate-fadeIn {
+      transition: none !important;
+    }
+
+    /* ==========================================
+       REDUCED MOTION SUPPORT
+       ========================================== */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after,
+      body,
+      body::after,
+      header,
+      input[type="text"],
+      textarea,
+      button,
+      a,
+      .mf-btn-primary,
+      .mf-btn-secondary,
+      .transition,
+      svg, svg path, svg circle {
+        transition: none !important;
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+
+    /* ==========================================
+       SCROLLBARS
+       ========================================== */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track  { background: var(--scrollbar-track); }
+    ::-webkit-scrollbar-thumb  { background: var(--scrollbar-thumb); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+
+    /* ==========================================
+       ANIMATIONS
+       ========================================== */
     @keyframes pulseSubtle {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.82; transform: scale(1.02); }
@@ -63,9 +229,207 @@
       animation: pulseSubtle 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.25s ease forwards;
+    }
+
+    /* ==========================================
+       DARK MODE — SURFACE / BACKGROUND OVERRIDES
+       ========================================== */
+
+    /* Header uses its own token so backdrop-blur stays useful */
+    html.dark header {
+      background-color: var(--bg-header) !important;
+    }
+
+    /* White/translucent surfaces → dark card */
+    html.dark .bg-white\/40,
+    html.dark .bg-white\/50,
+    html.dark .bg-white\/60,
+    html.dark .bg-white\/70,
+    html.dark .bg-white\/80,
+    html.dark .bg-white\/85,
+    html.dark .bg-white\/90,
+    html.dark .bg-white\/95,
+    html.dark .bg-white {
+      background-color: var(--bg-card) !important;
+    }
+
+    /* Specific off-white tints used in parse-preview, modals, missed items */
+    html.dark .bg-\[\#fbfbfa\],
+    html.dark .bg-\[\#fafafa\],
+    html.dark .bg-\[\#f6f5f2\] {
+      background-color: var(--bg-code) !important;
+    }
+
+    /* Inputs & textareas */
+    html.dark input[type="text"],
+    html.dark textarea {
+      background-color: var(--bg-input) !important;
+      color: var(--text-primary) !important;
+      border-color: var(--border-med) !important;
+    }
+    html.dark input::placeholder,
+    html.dark textarea::placeholder {
+      color: var(--text-placeholder) !important;
+    }
+    html.dark input:focus,
+    html.dark textarea:focus {
+      border-color: #ff5a24 !important;
+    }
+
+    /* Subtle fills — tags, pills, weight badges */
+    html.dark .bg-black\/5  { background-color: var(--bg-subtle) !important; }
+    html.dark .bg-black\/10 { background-color: rgba(255,255,255,0.055) !important; }
+    html.dark .bg-black\/15 { background-color: rgba(255,255,255,0.07) !important; }
+    html.dark .bg-black\/40 { background-color: rgba(0,0,0,0.55) !important; }
+
+    /* Decorative dot grid on question card */
+    html.dark .rounded-full.bg-black { background-color: rgba(255,255,255,1) !important; }
+
+    /* Dark action buttons (#111111) — lighten so they read against dark page bg */
+    html.dark .bg-\[\#111111\] { background-color: #2c2f34 !important; }
+
+    /* Warning / persistence notice bar */
+    html.dark .bg-\[\#fff3cd\]    { background-color: #2b2210 !important; }
+    html.dark .border-\[\#ffeeba\] { border-color:     #4a380e !important; }
+    html.dark .text-\[\#856404\]  { color:             #d4a520 !important; }
+
+    /* ==========================================
+       DARK MODE — BORDER OVERRIDES
+       ========================================== */
+    html.dark .border-black\/5  { border-color: rgba(255,255,255,0.05)  !important; }
+    html.dark .border-black\/10 { border-color: var(--border)           !important; }
+    html.dark .border-black\/15 { border-color: var(--border-med)       !important; }
+    html.dark .border-black\/20 { border-color: var(--border-med)       !important; }
+    html.dark .border-black\/25 { border-color: var(--border-strong)    !important; }
+    html.dark .border-black     { border-color: rgba(255,255,255,0.10)  !important; }
+
+    /* Restore accent border on hover (needed because border-black/20 has !important) */
+    html.dark .hover\:border-\[\#ff5a24\]:hover { border-color: #ff5a24 !important; }
+
+    /* Divide lines in history table */
+    html.dark .divide-black\/10 > * + * { border-color: var(--border) !important; }
+
+    /* ==========================================
+       DARK MODE — TEXT OVERRIDES
+       ========================================== */
+    html.dark .text-black        { color: var(--text-primary)   !important; }
+    html.dark .text-\[\#090909\] { color: var(--text-primary)   !important; }
+    html.dark .text-\[\#111\]    { color: var(--text-primary)   !important; }
+    html.dark .text-\[\#222\]    { color: var(--text-primary)   !important; }
+    html.dark .text-\[\#333\]    { color: var(--text-secondary) !important; }
+    html.dark .text-\[\#444\]    { color: var(--text-secondary) !important; }
+    html.dark .text-\[\#555\]    { color: var(--text-muted)     !important; }
+    html.dark .text-\[\#666\]    { color: var(--text-muted)     !important; }
+    html.dark .text-\[\#777\]    { color: var(--text-faint)     !important; }
+    html.dark .text-\[\#888\]    { color: var(--text-faint)     !important; }
+    html.dark .text-black\/90    { color: var(--text-primary)   !important; }
+    html.dark .text-black\/40    { color: var(--text-faint)     !important; }
+
+    /* Restore accent text on hover (text-black has !important which would otherwise block it) */
+    html.dark .hover\:text-\[\#ff5a24\]:hover { color: #ff5a24 !important; }
+
+    /* ==========================================
+       DARK MODE — HOVER OVERRIDES
+       ========================================== */
+    html.dark .hover\:bg-black\/5:hover { background-color: rgba(255,255,255,0.07) !important; }
+    html.dark .hover\:bg-white:hover    { background-color: #2e3238             !important; }
+    html.dark .hover\:bg-black:hover    { background-color: #1e2226             !important; }
+    html.dark .theme-toggle:hover       { background-color: rgba(255,255,255,0.07) !important; }
+
+    /* ==========================================
+       SHARED BUTTON STYLES
+       (theme-aware via CSS tokens)
+       ========================================== */
+
+    /* Primary action button — "Submit Answer", "Save to subjects:all" */
+    .mf-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      border: 1px solid var(--btn-primary-border);
+      box-shadow: var(--btn-primary-shadow);
+      border-radius: 0.75rem; /* rounded-xl */
+      font-weight: 500;
+      transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+    }
+    .mf-btn-primary:hover {
+      background-color: var(--btn-primary-bg-hover);
+      border-color: var(--btn-primary-border-hover);
+    }
+    .mf-btn-primary:active {
+      background-color: var(--btn-primary-bg-active);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.20);
+    }
+    .mf-btn-primary:focus-visible {
+      outline: 2px solid #ff5a24;
+      outline-offset: 2px;
+    }
+    .mf-btn-primary:disabled {
+      opacity: 0.40;
+      cursor: not-allowed;
+    }
+
+    /* Secondary / ghost button — "I Don't Know / Reveal" */
+    .mf-btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--btn-secondary-bg);
+      color: var(--btn-secondary-text);
+      border: 1px solid var(--btn-secondary-border);
+      box-shadow: var(--btn-secondary-shadow);
+      border-radius: 0.75rem;
+      font-weight: 500;
+      transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, box-shadow 200ms ease;
+    }
+    .mf-btn-secondary:hover {
+      background-color: var(--btn-secondary-bg-hover);
+      border-color: var(--btn-secondary-border-hover);
+    }
+    .mf-btn-secondary:active {
+      background-color: var(--btn-secondary-bg-active);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+    .mf-btn-secondary:focus-visible {
+      outline: 2px solid #ff5a24;
+      outline-offset: 2px;
+    }
+
+    /* Score indicator icons — inline SVG helpers */
+    .score-icon-correct {
+      display: inline-flex;
+      align-items: center;
+      color: #16a34a;
+    }
+    .score-icon-wrong {
+      display: inline-flex;
+      align-items: center;
+      color: #dc2626;
+    }
+    html.dark .score-icon-correct { color: #4ade80; }
+    html.dark .score-icon-wrong   { color: #f87171; }
+
   </style>
+  <!-- Flash-prevention: apply dark class before React mounts to avoid FOUC -->
+  <script>
+    (function(){
+      try{
+        var t=localStorage.getItem('mf-theme');
+        if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme:dark)').matches))
+          document.documentElement.classList.add('dark');
+      }catch(e){}
+    })();
+  </script>
 </head>
-<body class="min-h-screen overflow-x-hidden text-[#090909] antialiased">
+<body class="min-h-screen overflow-x-hidden antialiased">
   <div id="root"></div>
 
   <script type="text/babel">
@@ -654,6 +1018,20 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
       const [isLoading, setIsLoading] = useState(true);
       const [persistenceNotice, setPersistenceNotice] = useState(null);
 
+      // Dark mode — flash-prevention handled in <head> inline script above
+      const [darkMode, setDarkMode] = useState(() => {
+        try {
+          const t = localStorage.getItem('mf-theme');
+          if (t === 'dark') return true;
+          if (t === 'light') return false;
+          return window.matchMedia('(prefers-color-scheme: dark)').matches;
+        } catch(e) { return false; }
+      });
+      useEffect(() => {
+        document.documentElement.classList.toggle('dark', darkMode);
+        try { localStorage.setItem('mf-theme', darkMode ? 'dark' : 'light'); } catch(e) {}
+      }, [darkMode]);
+
       // Data states: Consolidated subjects storage
       const [subjectsData, setSubjectsData] = useState({}); // { [slug]: SubjectDataObject }
       const [historyMap, setHistoryMap] = useState({}); // { [questionId]: QuestionHistory }
@@ -684,6 +1062,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
       const [parsedPreviewCount, setParsedPreviewCount] = useState(0);
       const [reuploadConfirmModal, setReuploadConfirmModal] = useState(null);
       const [resumePromptModal, setResumePromptModal] = useState(null);
+      const [summarySession, setSummarySession] = useState(null);
 
       // ----------------------------------------------------
       // INITIAL BULK HYDRATION (Consolidated subjects:all & history:all)
@@ -757,6 +1136,9 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                 initFreshSession(pool, savedHistory);
               }
             } else {
+              if (savedSession && savedSession.phase === "ended") {
+                await StorageService.remove(STORAGE_KEYS.SESSION_CURRENT);
+              }
               initFreshSession(pool, savedHistory);
             }
 
@@ -799,7 +1181,9 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
       // FRESH SESSION INITIALIZER (Dedicated questionNumber starts at 1)
       // ----------------------------------------------------
       const initFreshSession = useCallback((pool, currentHist) => {
-        const firstQ = selectNextQuestion(pool, currentHist, [], null);
+        const poolToUse = (pool && pool.length > 0) ? pool : combinedPool;
+        const histToUse = currentHist || historyMap;
+        const firstQ = selectNextQuestion(poolToUse, histToUse, [], null);
         const newSession = {
           version: 1,
           startedAt: Date.now(),
@@ -815,7 +1199,22 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
         setIsGradedThisTurn(false);
         setLastGradedOutcome(null);
         StorageService.set(STORAGE_KEYS.SESSION_CURRENT, newSession);
-      }, []);
+      }, [combinedPool, historyMap]);
+
+      // Navigate to Interview: resumes ongoing session or starts brand-new if ended
+      const handleNavigateToInterview = useCallback(() => {
+        if (!session || session.phase === "ended" || !session.activeQuestionId) {
+          initFreshSession(combinedPool, historyMap);
+        }
+        setCurrentView("interview");
+      }, [session, combinedPool, historyMap, initFreshSession]);
+
+      // Safeguard: Interview view must always render an active answering/revealed session
+      useEffect(() => {
+        if (!isLoading && currentView === "interview" && session.phase === "ended" && combinedPool.length > 0) {
+          initFreshSession(combinedPool, historyMap);
+        }
+      }, [isLoading, currentView, session.phase, combinedPool, historyMap, initFreshSession]);
 
 
       // ----------------------------------------------------
@@ -833,7 +1232,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
       };
 
       // Fast Path: "I Don't Know / Reveal"
-      // Immediately marks ❌ Wrong, updates history once, increments wrong score,
+      // Immediately marks Wrong, updates history once, increments wrong score,
       // reveals answer, and unlocks Next Question directly without requiring a second click.
       const handleIDontKnow = () => {
         if (isGradedThisTurn || session.phase === "graded" || !currentQuestion) return;
@@ -888,7 +1287,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
         StorageService.set(STORAGE_KEYS.SESSION_CURRENT, updatedSession);
       };
 
-      // Self-Marking (✅ Correct / ❌ Wrong) in revealed phase
+      // Self-Marking (Correct / Wrong) in revealed phase
       const handleGrade = (isCorrect) => handleSelfGrade(isCorrect);
       const handleSelfGrade = (isCorrect) => {
         if (isGradedThisTurn || session.phase === "graded" || !currentQuestion) return;
@@ -987,10 +1386,14 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
 
       // End Current Session
       const handleEndSession = () => {
-        const updated = { ...session, phase: "ended" };
-        setSession(updated);
+        const ended = { ...session, phase: "ended" };
+        setSummarySession(ended);
+        setSession(ended);
+        setUserAnswer("");
+        setIsGradedThisTurn(false);
+        setLastGradedOutcome(null);
+        StorageService.remove(STORAGE_KEYS.SESSION_CURRENT);
         setCurrentView("summary");
-        StorageService.set(STORAGE_KEYS.SESSION_CURRENT, updated);
       };
 
       // Start New Session from Summary
@@ -1141,7 +1544,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
             <div className="flex items-center gap-4">
               <a 
                 href="#" 
-                onClick={(e) => { e.preventDefault(); setCurrentView("interview"); }}
+                onClick={(e) => { e.preventDefault(); handleNavigateToInterview(); }}
                 className="select-none text-2xl sm:text-3xl font-medium text-black tracking-[0.22em] flex items-center gap-2"
               >
                 <span>MOCKFLOW</span>
@@ -1154,7 +1557,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
 
             <nav className="flex items-center gap-4 sm:gap-8 text-sm sm:text-base font-medium text-black">
               <button
-                onClick={() => setCurrentView("interview")}
+                onClick={handleNavigateToInterview}
                 className={`transition pb-1 flex items-center gap-2 ${
                   currentView === "interview" 
                     ? "text-[#ff5a24] border-b-2 border-[#ff5a24]" 
@@ -1189,7 +1592,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                 <span>Analytics</span>
               </button>
 
-              {session.askedQueue.length > 0 && (
+              {session.phase !== "ended" && session.askedQueue.length > 0 && (
                 <button
                   onClick={handleEndSession}
                   className="rounded-lg border border-black/25 bg-[#111111] px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-medium text-white shadow transition hover:bg-black"
@@ -1197,6 +1600,25 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                   End Session
                 </button>
               )}
+
+              {/* Theme toggle — compact Moon/Sun button */}
+              <button
+                onClick={() => setDarkMode(d => !d)}
+                title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                aria-label="Toggle color theme"
+                className="theme-toggle ml-1 p-2 rounded-lg hover:bg-black/5 transition flex items-center justify-center"
+              >
+                {darkMode ? (
+                  <svg className="size-[1.05rem]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="4"/>
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                  </svg>
+                ) : (
+                  <svg className="size-[1.05rem]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                  </svg>
+                )}
+              </button>
             </nav>
           </header>
 
@@ -1239,8 +1661,16 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                   <div className="flex items-center gap-6">
                     <div className="text-right">
                       <div className="text-xs text-[#666] uppercase tracking-wider font-semibold">Running Score</div>
-                      <div className="text-xl sm:text-2xl font-medium text-black">
-                        {session.score.right} <span className="text-[#15803d]">✅</span> / {session.score.wrong} <span className="text-[#b91c1c]">❌</span>
+                      <div className="text-xl sm:text-2xl font-medium text-black flex items-center justify-end gap-2">
+                        <span className="tabular-nums">{session.score.right}</span>
+                        <span className="score-icon-correct">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                        </span>
+                        <span className="text-[#aaa] font-light">/</span>
+                        <span className="tabular-nums">{session.score.wrong}</span>
+                        <span className="score-icon-wrong">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                        </span>
                       </div>
                     </div>
                     <div className="h-10 w-px bg-black/10 hidden sm:block"></div>
@@ -1329,7 +1759,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                             <button
                               type="button"
                               onClick={handleIDontKnow}
-                              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border border-black/25 bg-white/50 text-black text-sm font-medium hover:bg-white transition"
+                              className="mf-btn-secondary gap-2 px-5 py-3.5 text-sm"
                               title="Immediately marks question as wrong, updates history once, reveals answer, and enables Next Question"
                             >
                               <Icon name="help-circle" className="size-4" />
@@ -1341,7 +1771,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                             <button
                               type="button"
                               onClick={handleSubmitAnswer}
-                              className="inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-xl bg-[#111111] hover:bg-black text-white text-base font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_12px_24px_rgba(0,0,0,0.12)] border border-black/25 transition w-full sm:w-auto"
+                              className="mf-btn-primary gap-3 px-8 py-3.5 text-base w-full sm:w-auto"
                             >
                               <span>Submit Answer</span>
                               <Icon name="arrow-right" className="size-4" />
@@ -1393,7 +1823,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                             </p>
                             <p className="text-sm text-[#555] mt-1">
                               {session.phase === "graded"
-                                ? `Recorded as ${lastGradedOutcome === "right" ? "✅ Correct" : "❌ Wrong"}. Ready to advance.`
+                                ? `Recorded as ${lastGradedOutcome === "right" ? "Correct" : "Incorrect"}. Ready to advance.`
                                 : "Did your answer capture the core concepts? Self-mark honestly to train the adaptive selector."}
                             </p>
                           </div>
@@ -1407,7 +1837,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                                   className="inline-flex items-center gap-2 bg-[#15803d] hover:bg-[#166534] text-white font-medium px-6 py-3 rounded-xl shadow-md transition"
                                 >
                                   <Icon name="check" className="size-4" />
-                                  <span>✅ Correct</span>
+                                  <span>Correct</span>
                                 </button>
                                 <button
                                   type="button"
@@ -1415,7 +1845,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                                   className="inline-flex items-center gap-2 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium px-6 py-3 rounded-xl shadow-md transition"
                                 >
                                   <Icon name="x" className="size-4" />
-                                  <span>❌ Wrong</span>
+                                  <span>Incorrect</span>
                                 </button>
                               </>
                             )}
@@ -1563,7 +1993,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                         type="button"
                         onClick={() => handleSaveSubject(false)}
                         disabled={parsedPreviewCount === 0}
-                        className="bg-[#111111] hover:bg-black disabled:opacity-40 text-white px-8 py-3 rounded-xl font-medium transition shadow flex items-center gap-2"
+                        className="mf-btn-primary gap-2 px-8 py-3"
                       >
                         <Icon name="check" className="size-4" />
                         <span>Save to subjects:all</span>
@@ -1723,90 +2153,93 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
             {/* ==================================================== */}
             {/* VIEW 4: SESSION SUMMARY SCREEN */}
             {/* ==================================================== */}
-            {currentView === "summary" && (
-              <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn">
-                <div className="text-center space-y-3">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff5a24]/10 text-[#ff5a24] text-xs font-semibold uppercase tracking-wider">
-                    <Icon name="check-circle" className="size-4" />
-                    <span>Session Concluded</span>
+            {currentView === "summary" && (() => {
+              const displaySummary = summarySession || session;
+              return (
+                <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn">
+                  <div className="text-center space-y-3">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff5a24]/10 text-[#ff5a24] text-xs font-semibold uppercase tracking-wider">
+                      <Icon name="check-circle" className="size-4" />
+                      <span>Session Concluded</span>
+                    </div>
+                    <h1 className="text-4xl sm:text-5xl font-serif text-black">Interview Session Summary</h1>
+                    <p className="text-base text-[#555]">
+                      Mixed interview across {representedSubjects.join(", ")}
+                    </p>
                   </div>
-                  <h1 className="text-4xl sm:text-5xl font-serif text-black">Interview Session Summary</h1>
-                  <p className="text-base text-[#555]">
-                    Mixed interview across {representedSubjects.join(", ")}
-                  </p>
-                </div>
 
-                {/* Score Big Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <div className="p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
-                    <div className="text-xs font-semibold uppercase text-[#666]">Total Answered</div>
-                    <div className="text-5xl font-serif text-black mt-3">
-                      {session.score.right + session.score.wrong}
+                  {/* Score Big Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div className="p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
+                      <div className="text-xs font-semibold uppercase text-[#666]">Total Answered</div>
+                      <div className="text-5xl font-serif text-black mt-3">
+                        {displaySummary.score.right + displaySummary.score.wrong}
+                      </div>
+                    </div>
+                    <div className="p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
+                      <div className="text-xs font-semibold uppercase text-[#15803d]">Correct Marks</div>
+                      <div className="text-5xl font-serif text-[#15803d] mt-3">
+                        {displaySummary.score.right}
+                      </div>
+                    </div>
+                    <div className="p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
+                      <div className="text-xs font-semibold uppercase text-[#b91c1c]">Missed / Wrong</div>
+                      <div className="text-5xl font-serif text-[#b91c1c] mt-3">
+                        {displaySummary.score.wrong}
+                      </div>
                     </div>
                   </div>
-                  <div className="p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
-                    <div className="text-xs font-semibold uppercase text-[#15803d]">Correct Marks</div>
-                    <div className="text-5xl font-serif text-[#15803d] mt-3">
-                      {session.score.right}
+
+                  {/* Missed questions section */}
+                  {displaySummary.sessionMissedQuestions && displaySummary.sessionMissedQuestions.length > 0 ? (
+                    <div className="rounded-3xl border border-black/15 bg-white/80 p-8 shadow-sm space-y-6">
+                      <h3 className="font-serif text-2xl text-black">Questions to Review</h3>
+                      <div className="space-y-6">
+                        {displaySummary.sessionMissedQuestions.map((item, idx) => (
+                          <div key={idx} className="p-5 rounded-2xl border border-black/10 bg-[#fafafa] space-y-3">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold px-2 py-0.5 rounded bg-black/5 text-[#222]">
+                                {item.question.subjectName}
+                              </span>
+                              <h4 className="font-medium text-base text-black">{formatQuestionText(item.question.question)}</h4>
+                            </div>
+                            <div className="text-xs text-[#555] bg-white p-3 rounded-lg border border-black/5">
+                              <strong>Your Answer:</strong> {item.userAnswer}
+                            </div>
+                            <div className="text-xs text-white bg-[#111] p-3 rounded-lg border border-black/10">
+                              <strong className="text-[#ff5a24]">Correct Answer:</strong> {item.question.answer}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
-                    <div className="text-xs font-semibold uppercase text-[#b91c1c]">Missed / Wrong</div>
-                    <div className="text-5xl font-serif text-[#b91c1c] mt-3">
-                      {session.score.wrong}
+                  ) : (
+                    <div className="p-8 rounded-2xl border border-black/10 bg-white text-center">
+                      <p className="font-serif text-xl text-[#15803d]">Flawless round! Zero questions marked wrong.</p>
                     </div>
+                  )}
+
+                  {/* Buttons */}
+                  <div className="flex items-center justify-center gap-4 pt-4">
+                    <button
+                      type="button"
+                      onClick={handleRestartFromSummary}
+                      className="bg-[#111111] hover:bg-black text-white px-8 py-4 rounded-xl font-medium shadow-lg transition flex items-center gap-2"
+                    >
+                      <Icon name="rotate-ccw" className="size-4" />
+                      <span>Start New Session</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentView("manage")}
+                      className="border border-black/25 bg-white px-6 py-4 rounded-xl font-medium hover:bg-black/5 transition"
+                    >
+                      Manage Subjects
+                    </button>
                   </div>
                 </div>
-
-                {/* Missed questions section */}
-                {session.sessionMissedQuestions.length > 0 ? (
-                  <div className="rounded-3xl border border-black/15 bg-white/80 p-8 shadow-sm space-y-6">
-                    <h3 className="font-serif text-2xl text-black">Questions to Review</h3>
-                    <div className="space-y-6">
-                      {session.sessionMissedQuestions.map((item, idx) => (
-                        <div key={idx} className="p-5 rounded-2xl border border-black/10 bg-[#fafafa] space-y-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold px-2 py-0.5 rounded bg-black/5 text-[#222]">
-                              {item.question.subjectName}
-                            </span>
-                            <h4 className="font-medium text-base text-black">{formatQuestionText(item.question.question)}</h4>
-                          </div>
-                          <div className="text-xs text-[#555] bg-white p-3 rounded-lg border border-black/5">
-                            <strong>Your Answer:</strong> {item.userAnswer}
-                          </div>
-                          <div className="text-xs text-white bg-[#111] p-3 rounded-lg border border-black/10">
-                            <strong className="text-[#ff5a24]">Correct Answer:</strong> {item.question.answer}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="p-8 rounded-2xl border border-black/10 bg-white text-center">
-                    <p className="font-serif text-xl text-[#15803d]">Flawless round! Zero questions marked wrong.</p>
-                  </div>
-                )}
-
-                {/* Buttons */}
-                <div className="flex items-center justify-center gap-4 pt-4">
-                  <button
-                    type="button"
-                    onClick={handleRestartFromSummary}
-                    className="bg-[#111111] hover:bg-black text-white px-8 py-4 rounded-xl font-medium shadow-lg transition flex items-center gap-2"
-                  >
-                    <Icon name="rotate-ccw" className="size-4" />
-                    <span>Start New Session</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentView("manage")}
-                    className="border border-black/25 bg-white px-6 py-4 rounded-xl font-medium hover:bg-black/5 transition"
-                  >
-                    Manage Subjects
-                  </button>
-                </div>
-              </div>
-            )}
+              );
+            })()}
           </main>
 
           {/* ==================================================== */}
@@ -1854,7 +2287,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                 <Icon name="sparkles" className="size-10 text-[#ff5a24] mx-auto" />
                 <h3 className="font-serif text-2xl text-black">Resume Unfinished Session?</h3>
                 <p className="text-sm text-[#555] leading-relaxed">
-                  You have an in-progress interview session with score {resumePromptModal.session.score.right} ✅ / {resumePromptModal.session.score.wrong} ❌. Would you like to resume where you left off?
+                  You have an in-progress interview session ({resumePromptModal.session.score.right} correct / {resumePromptModal.session.score.wrong} incorrect). Would you like to resume where you left off?
                 </p>
                 <div className="flex justify-center gap-3 pt-2">
                   <button
@@ -1864,7 +2297,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                       setResumePromptModal(null);
                       initFreshSession(combinedPool, historyMap);
                     }}
-                    className="px-5 py-2.5 rounded-xl border border-black/20 text-sm font-medium hover:bg-black/5"
+                    className="mf-btn-secondary px-5 py-2.5 text-sm"
                   >
                     Start Fresh
                   </button>
@@ -1875,7 +2308,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                       setResumePromptModal(null);
                       setCurrentView("interview");
                     }}
-                    className="px-6 py-2.5 rounded-xl bg-[#111111] text-white text-sm font-medium hover:bg-black shadow"
+                    className="mf-btn-primary px-6 py-2.5 text-sm"
                   >
                     Resume Session
                   </button>
