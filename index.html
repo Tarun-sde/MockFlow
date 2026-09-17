@@ -417,6 +417,24 @@
     html.dark .score-icon-correct { color: #4ade80; }
     html.dark .score-icon-wrong   { color: #f87171; }
 
+    /* ==========================================
+       RESPONSIVENESS & OVERFLOW SAFEGUARDS
+       ========================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
+    /* Prevent text or pre/code from blowing out screen width */
+    pre, code {
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
   </style>
   <!-- Flash-prevention: apply dark class before React mounts to avoid FOUC -->
   <script>
@@ -1540,143 +1558,232 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
       return (
         <div className="min-h-screen flex flex-col justify-between">
           {/* Header Bar matching doc/generated-page.html */}
-          <header className="flex w-full z-20 pt-6 pr-6 pb-6 pl-6 sm:px-10 lg:px-16 items-center justify-between border-b border-black/10 bg-white/40 backdrop-blur-md sticky top-0">
-            <div className="flex items-center gap-4">
-              <a 
-                href="#" 
-                onClick={(e) => { e.preventDefault(); handleNavigateToInterview(); }}
-                className="select-none text-2xl sm:text-3xl font-medium text-black tracking-[0.22em] flex items-center gap-2"
-              >
-                <span>MOCKFLOW</span>
-                <span className="size-2.5 rounded-full bg-[#ff5a24] shadow-[0_0_0_1px_rgba(255,90,36,0.2)] animate-pulse"></span>
-              </a>
-              <span className="hidden sm:inline-block text-xs font-semibold tracking-wider uppercase px-2.5 py-1 rounded bg-black/5 text-[#222]">
-                Personal Prep
-              </span>
+          <header className="w-full z-20 border-b border-black/10 bg-white/40 backdrop-blur-md sticky top-0 px-2.5 sm:px-4 md:px-5 lg:px-10 xl:px-16 py-2 sm:py-2.5 md:py-5 lg:py-6">
+            {/* 1. DESKTOP NAVIGATION (>= 768px) - Preserves desktop layout exactly */}
+            <div className="hidden md:flex w-full items-center justify-between">
+              <div className="flex items-center gap-2.5 lg:gap-4">
+                <a 
+                  href="#" 
+                  onClick={(e) => { e.preventDefault(); handleNavigateToInterview(); }}
+                  className="select-none text-xl md:text-2xl lg:text-3xl font-medium text-black tracking-[0.18em] lg:tracking-[0.22em] flex items-center gap-2"
+                >
+                  <span>MOCKFLOW</span>
+                  <span className="size-2.5 rounded-full bg-[#ff5a24] shadow-[0_0_0_1px_rgba(255,90,36,0.2)] animate-pulse"></span>
+                </a>
+                <span className="inline-block text-[11px] lg:text-xs font-semibold tracking-wider uppercase px-2 py-0.5 lg:px-2.5 lg:py-1 rounded bg-black/5 text-[#222]">
+                  Personal Prep
+                </span>
+              </div>
+
+              <nav className="flex items-center gap-2.5 lg:gap-8 text-sm lg:text-base font-medium text-black">
+                <button
+                  onClick={handleNavigateToInterview}
+                  className={`transition pb-1 flex items-center gap-1.5 lg:gap-2 ${
+                    currentView === "interview" 
+                      ? "text-[#ff5a24] border-b-2 border-[#ff5a24]" 
+                      : "hover:text-[#ff5a24]"
+                  }`}
+                >
+                  <Icon name="sparkles" className="size-4" />
+                  <span>Interview</span>
+                </button>
+
+                <button
+                  onClick={() => setCurrentView("manage")}
+                  className={`transition pb-1 flex items-center gap-1.5 lg:gap-2 ${
+                    currentView === "manage" 
+                      ? "text-[#ff5a24] border-b-2 border-[#ff5a24]" 
+                      : "hover:text-[#ff5a24]"
+                  }`}
+                >
+                  <Icon name="layers" className="size-4" />
+                  <span>Subjects ({subjects.length})</span>
+                </button>
+
+                <button
+                  onClick={() => setCurrentView("history")}
+                  className={`transition pb-1 flex items-center gap-1.5 lg:gap-2 ${
+                    currentView === "history" 
+                      ? "text-[#ff5a24] border-b-2 border-[#ff5a24]" 
+                      : "hover:text-[#ff5a24]"
+                  }`}
+                >
+                  <Icon name="bar-chart" className="size-4" />
+                  <span>Analytics</span>
+                </button>
+
+                {session.phase !== "ended" && session.askedQueue.length > 0 && (
+                  <button
+                    onClick={handleEndSession}
+                    className="rounded-lg border border-black/25 bg-[#111111] px-3 py-1.5 lg:px-5 lg:py-2.5 text-xs lg:text-sm font-medium text-white shadow transition hover:bg-black whitespace-nowrap"
+                  >
+                    End Session
+                  </button>
+                )}
+
+                {/* Theme toggle — compact Moon/Sun button */}
+                <button
+                  onClick={() => setDarkMode(d => !d)}
+                  title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                  aria-label="Toggle color theme"
+                  className="theme-toggle ml-0.5 lg:ml-1 p-1.5 lg:p-2 rounded-lg hover:bg-black/5 transition flex items-center justify-center shrink-0"
+                >
+                  {darkMode ? (
+                    <svg className="size-[1.05rem]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="4"/>
+                      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                    </svg>
+                  ) : (
+                    <svg className="size-[1.05rem]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                  )}
+                </button>
+              </nav>
             </div>
 
-            <nav className="flex items-center gap-4 sm:gap-8 text-sm sm:text-base font-medium text-black">
-              <button
-                onClick={handleNavigateToInterview}
-                className={`transition pb-1 flex items-center gap-2 ${
-                  currentView === "interview" 
-                    ? "text-[#ff5a24] border-b-2 border-[#ff5a24]" 
-                    : "hover:text-[#ff5a24]"
-                }`}
-              >
-                <Icon name="sparkles" className="size-4" />
-                <span>Interview</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentView("manage")}
-                className={`transition pb-1 flex items-center gap-2 ${
-                  currentView === "manage" 
-                    ? "text-[#ff5a24] border-b-2 border-[#ff5a24]" 
-                    : "hover:text-[#ff5a24]"
-                }`}
-              >
-                <Icon name="layers" className="size-4" />
-                <span>Subjects ({subjects.length})</span>
-              </button>
-
-              <button
-                onClick={() => setCurrentView("history")}
-                className={`transition pb-1 flex items-center gap-2 ${
-                  currentView === "history" 
-                    ? "text-[#ff5a24] border-b-2 border-[#ff5a24]" 
-                    : "hover:text-[#ff5a24]"
-                }`}
-              >
-                <Icon name="bar-chart" className="size-4" />
-                <span>Analytics</span>
-              </button>
-
-              {session.phase !== "ended" && session.askedQueue.length > 0 && (
-                <button
-                  onClick={handleEndSession}
-                  className="rounded-lg border border-black/25 bg-[#111111] px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-medium text-white shadow transition hover:bg-black"
+            {/* 2. DEDICATED MOBILE NAVIGATION (< 768px) */}
+            <div className="flex md:hidden flex-col w-full gap-2">
+              {/* Row 1: Logo on left, Theme toggle on right */}
+              <div className="flex items-center justify-between w-full">
+                <a 
+                  href="#" 
+                  onClick={(e) => { e.preventDefault(); handleNavigateToInterview(); }}
+                  className="select-none text-xl sm:text-2xl font-medium text-black tracking-[0.16em] sm:tracking-[0.22em] flex items-center gap-1.5"
                 >
-                  End Session
-                </button>
-              )}
+                  <span>MOCKFLOW</span>
+                  <span className="size-2 rounded-full bg-[#ff5a24] shadow-[0_0_0_1px_rgba(255,90,36,0.2)] animate-pulse"></span>
+                </a>
 
-              {/* Theme toggle — compact Moon/Sun button */}
-              <button
-                onClick={() => setDarkMode(d => !d)}
-                title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-                aria-label="Toggle color theme"
-                className="theme-toggle ml-1 p-2 rounded-lg hover:bg-black/5 transition flex items-center justify-center"
-              >
-                {darkMode ? (
-                  <svg className="size-[1.05rem]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="4"/>
-                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
-                  </svg>
-                ) : (
-                  <svg className="size-[1.05rem]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                  </svg>
+                <button
+                  onClick={() => setDarkMode(d => !d)}
+                  title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                  aria-label="Toggle color theme"
+                  className="theme-toggle p-1.5 rounded-lg hover:bg-black/5 transition flex items-center justify-center shrink-0"
+                >
+                  {darkMode ? (
+                    <svg className="size-[1.1rem]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="4"/>
+                      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                    </svg>
+                  ) : (
+                    <svg className="size-[1.1rem]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
+
+              {/* Row 2: Main Navigation Items + Compact End Action */}
+              <div className="flex items-center justify-between w-full pt-1.5 border-t border-black/5 gap-1.5 min-w-0">
+                <nav className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm font-medium text-black min-w-0 shrink">
+                  <button
+                    onClick={handleNavigateToInterview}
+                    className={`transition pb-1 flex items-center gap-1 sm:gap-1.5 shrink-0 ${
+                      currentView === "interview" 
+                        ? "text-[#ff5a24] border-b-2 border-[#ff5a24] font-semibold" 
+                        : "hover:text-[#ff5a24]"
+                    }`}
+                  >
+                    <Icon name="sparkles" className="size-3.5 sm:size-4 shrink-0" />
+                    <span>Interview</span>
+                  </button>
+
+                  <button
+                    onClick={() => setCurrentView("manage")}
+                    title={`Subjects (${subjects.length})`}
+                    className={`transition pb-1 flex items-center gap-1 sm:gap-1.5 shrink-0 ${
+                      currentView === "manage" 
+                        ? "text-[#ff5a24] border-b-2 border-[#ff5a24] font-semibold" 
+                        : "hover:text-[#ff5a24]"
+                    }`}
+                  >
+                    <Icon name="layers" className="size-3.5 sm:size-4 shrink-0" />
+                    <span>Subjects</span>
+                    <span className="hidden min-[350px]:inline text-[10px] sm:text-xs opacity-60 font-mono">({subjects.length})</span>
+                  </button>
+
+                  <button
+                    onClick={() => setCurrentView("history")}
+                    title="Analytics"
+                    className={`transition pb-1 flex items-center gap-1 sm:gap-1.5 shrink-0 ${
+                      currentView === "history" 
+                        ? "text-[#ff5a24] border-b-2 border-[#ff5a24] font-semibold" 
+                        : "hover:text-[#ff5a24]"
+                    }`}
+                  >
+                    <Icon name="bar-chart" className="size-3.5 sm:size-4 shrink-0" />
+                    <span>Analytics</span>
+                  </button>
+                </nav>
+
+                {session.phase !== "ended" && session.askedQueue.length > 0 && (
+                  <button
+                    onClick={handleEndSession}
+                    className="rounded-lg border border-black/25 bg-[#111111] px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-medium text-white shadow-sm transition hover:bg-black whitespace-nowrap shrink-0 flex items-center gap-1"
+                  >
+                    <span>End</span>
+                  </button>
                 )}
-              </button>
-            </nav>
+              </div>
+            </div>
           </header>
 
           {/* Non-blocking persistence warning */}
           {persistenceNotice && (
-            <div className="bg-[#fff3cd] border-b border-[#ffeeba] text-[#856404] px-6 py-2.5 text-sm flex items-center justify-between">
+            <div className="bg-[#fff3cd] border-b border-[#ffeeba] text-[#856404] px-4 sm:px-6 py-2.5 text-xs sm:text-sm flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Icon name="alert-triangle" className="size-4" />
-                <span>{persistenceNotice}</span>
+                <Icon name="alert-triangle" className="size-4 shrink-0" />
+                <span className="break-words">{persistenceNotice}</span>
               </div>
-              <button onClick={() => setPersistenceNotice(null)} className="text-sm font-bold">✕</button>
+              <button onClick={() => setPersistenceNotice(null)} className="text-sm font-bold shrink-0">✕</button>
             </div>
           )}
 
           {/* Main Views Container */}
-          <main className="w-full max-w-[90rem] mx-auto px-4 sm:px-8 lg:px-12 py-8 flex-1">
+          <main className="w-full max-w-[90rem] mx-auto px-3.5 sm:px-6 xl:px-12 py-5 sm:py-8 flex-1">
             
             {/* ==================================================== */}
             {/* VIEW 1: INTERVIEW SCREEN */}
             {/* ==================================================== */}
             {currentView === "interview" && (
-              <div className="space-y-8 animate-fadeIn">
+              <div className="space-y-6 sm:space-y-8 animate-fadeIn">
                 {/* Header Information matching Section 10.4 with Session Question Number */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border border-black/10 bg-white/60 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.03)]">
-                  <div>
-                    <div className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-[#222] mb-1">
-                      <span className="size-2.5 bg-[#ff5a24] shadow-[0_0_0_1px_rgba(255,90,36,0.18)]"></span>
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6 p-4 sm:p-6 rounded-2xl border border-black/10 bg-white/60 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.03)]">
+                  <div className="space-y-2 min-w-0">
+                    <div className="flex items-center gap-2 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#222] flex-wrap">
+                      <span className="size-2 sm:size-2.5 bg-[#ff5a24] shadow-[0_0_0_1px_rgba(255,90,36,0.18)] shrink-0"></span>
                       <span>MOCK INTERVIEW • ACTIVE POOL ({combinedPool.length} TOTAL)</span>
                     </div>
-                    <div className="flex items-center gap-4 flex-wrap">
-                      <h2 className="text-2xl font-serif text-black">
+                    <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
+                      <h2 className="text-xl sm:text-2xl font-serif text-black shrink-0">
                         Question <span className="text-[#ff5a24]">{session.questionNumber || 1}</span>
                       </h2>
-                      <div className="text-sm text-[#444] bg-white/80 px-3 py-1 rounded-full border border-black/10">
+                      <div className="text-xs sm:text-sm text-[#444] bg-white/80 px-2.5 sm:px-3 py-1 rounded-xl sm:rounded-full border border-black/10 max-w-full break-words">
                         Mixed: <span className="font-medium text-black">{representedSubjects.join(" • ") || "None"}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-6">
-                    <div className="text-right">
-                      <div className="text-xs text-[#666] uppercase tracking-wider font-semibold">Running Score</div>
-                      <div className="text-xl sm:text-2xl font-medium text-black flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-3 lg:pt-0 border-t lg:border-t-0 border-black/10 shrink-0">
+                    <div className="text-left sm:text-right">
+                      <div className="text-[11px] sm:text-xs text-[#666] uppercase tracking-wider font-semibold">Running Score</div>
+                      <div className="text-lg sm:text-2xl font-medium text-black flex items-center sm:justify-end gap-1.5 sm:gap-2">
                         <span className="tabular-nums">{session.score.right}</span>
                         <span className="score-icon-correct">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
                         </span>
                         <span className="text-[#aaa] font-light">/</span>
                         <span className="tabular-nums">{session.score.wrong}</span>
                         <span className="score-icon-wrong">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
                         </span>
                       </div>
                     </div>
-                    <div className="h-10 w-px bg-black/10 hidden sm:block"></div>
-                    <div className="text-right hidden sm:block">
-                      <div className="text-xs text-[#666] uppercase tracking-wider font-semibold">Accuracy</div>
-                      <div className="text-xl sm:text-2xl font-serif text-[#ff5a24]">
+                    <div className="h-8 sm:h-10 w-px bg-black/10"></div>
+                    <div className="text-right">
+                      <div className="text-[11px] sm:text-xs text-[#666] uppercase tracking-wider font-semibold">Accuracy</div>
+                      <div className="text-lg sm:text-2xl font-serif text-[#ff5a24]">
                         {session.score.right + session.score.wrong > 0 
                           ? `${Math.round((session.score.right / (session.score.right + session.score.wrong)) * 100)}%` 
                           : "0%"}
@@ -1687,7 +1794,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
 
                 {/* Main Question & Answer Card */}
                 {currentQuestion ? (
-                  <div className="rounded-3xl border border-black/15 bg-white/85 p-6 sm:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.06)] backdrop-blur-md relative overflow-hidden">
+                  <div className="rounded-3xl border border-black/15 bg-white/85 p-4 sm:p-8 lg:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.06)] backdrop-blur-md relative overflow-hidden">
                     <div className="absolute right-8 top-8 hidden md:grid grid-cols-4 gap-2 opacity-30 pointer-events-none">
                       {[...Array(8)].map((_, i) => (
                         <span key={i} className="size-1 rounded-full bg-black"></span>
@@ -1695,20 +1802,20 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                     </div>
 
                     {/* Session Question Number & Subject Tag */}
-                    <div className="flex items-center justify-between gap-4 mb-5 flex-wrap">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl sm:text-2xl font-serif font-medium text-black">
+                    <div className="flex items-center justify-between gap-3 sm:gap-4 mb-5 flex-wrap">
+                      <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                        <span className="text-lg sm:text-2xl font-serif font-medium text-black">
                           Question <span className="text-[#ff5a24]">{session.questionNumber || 1}</span>
                         </span>
                         <span className="h-4 w-px bg-black/15"></span>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#111111] text-white text-xs font-semibold uppercase tracking-wider">
-                          <span className="size-2 rounded-full bg-[#ff5a24]"></span>
+                        <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-lg bg-[#111111] text-white text-[11px] sm:text-xs font-semibold uppercase tracking-wider">
+                          <span className="size-1.5 sm:size-2 rounded-full bg-[#ff5a24]"></span>
                           <span>{currentQuestion.subjectName || currentQuestion.subject}</span>
                         </div>
                       </div>
 
                       {historyMap[currentQuestion.id] && (
-                        <div className="flex items-center gap-3 text-xs text-[#444] bg-black/5 px-3 py-1 rounded-full">
+                        <div className="flex items-center gap-2 sm:gap-3 text-xs text-[#444] bg-black/5 px-2.5 sm:px-3 py-1 rounded-full flex-wrap">
                           <span>Times Seen: <strong>{historyMap[currentQuestion.id].timesSeen}</strong></span>
                           <span>•</span>
                           <span>Wrong: <strong className="text-[#b91c1c]">{historyMap[currentQuestion.id].timesWrong}</strong></span>
@@ -1722,7 +1829,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                     </div>
 
                     {/* Question Statement */}
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-black leading-tight mb-8">
+                    <h1 className="text-xl sm:text-3xl lg:text-4xl font-serif text-black leading-snug sm:leading-tight mb-6 sm:mb-8 break-words [overflow-wrap:anywhere]">
                       {formatQuestionText(currentQuestion.question)}
                     </h1>
 
@@ -1744,22 +1851,22 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                               value={userAnswer}
                               onChange={(e) => setUserAnswer(e.target.value)}
                               placeholder="Type your technical answer here..."
-                              rows={7}
+                              rows={6}
                               autoComplete="off"
                               autoCorrect="on"
                               spellCheck="true"
-                              className="w-full p-5 rounded-2xl border border-black/20 bg-white/95 text-black placeholder:text-black/35 focus:outline-none focus:border-[#ff5a24] focus:ring-2 focus:ring-[#ff5a24]/20 transition text-base sm:text-lg leading-relaxed shadow-inner"
+                              className="w-full p-4 sm:p-5 rounded-2xl border border-black/20 bg-white/95 text-black placeholder:text-black/35 focus:outline-none focus:border-[#ff5a24] focus:ring-2 focus:ring-[#ff5a24]/20 transition text-base sm:text-lg leading-relaxed shadow-inner min-h-[140px] sm:min-h-[180px] resize-y"
                             />
                           </div>
                         </div>
 
                         {/* Actions Row */}
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2">
+                        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 pt-2">
                           <div className="flex items-center gap-3">
                             <button
                               type="button"
                               onClick={handleIDontKnow}
-                              className="mf-btn-secondary gap-2 px-5 py-3.5 text-sm"
+                              className="mf-btn-secondary gap-2 px-4 sm:px-5 py-3 sm:py-3.5 text-sm w-full sm:w-auto"
                               title="Immediately marks question as wrong, updates history once, reveals answer, and enables Next Question"
                             >
                               <Icon name="help-circle" className="size-4" />
@@ -1771,7 +1878,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                             <button
                               type="button"
                               onClick={handleSubmitAnswer}
-                              className="mf-btn-primary gap-3 px-8 py-3.5 text-base w-full sm:w-auto"
+                              className="mf-btn-primary gap-3 px-6 sm:px-8 py-3 sm:py-3.5 text-base w-full sm:w-auto"
                             >
                               <span>Submit Answer</span>
                               <Icon name="arrow-right" className="size-4" />
@@ -1783,11 +1890,11 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
 
                     {/* States: Revealed & Graded */}
                     {(session.phase === "revealed" || session.phase === "graded") && (
-                      <div className="space-y-8 animate-fadeIn">
+                      <div className="space-y-6 sm:space-y-8 animate-fadeIn">
                         {/* Answers Side-by-Side / Stacked */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                           {/* User's Submitted Answer */}
-                          <div className="rounded-2xl border border-black/10 bg-white/70 p-6 shadow-sm">
+                          <div className="rounded-2xl border border-black/10 bg-white/70 p-4 sm:p-6 shadow-sm">
                             <div className="flex items-center justify-between mb-3">
                               <span className="text-xs font-semibold uppercase tracking-wider text-[#666]">
                                 Your Response
@@ -1796,45 +1903,45 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                                 {userAnswer.trim().split(/\s+/).filter(Boolean).length} words
                               </span>
                             </div>
-                            <div className="whitespace-pre-wrap font-sans text-black/90 text-base leading-relaxed bg-white/60 p-4 rounded-xl border border-black/5 min-h-[120px]">
+                            <div className="whitespace-pre-wrap break-words font-sans text-black/90 text-sm sm:text-base leading-relaxed bg-white/60 p-3.5 sm:p-4 rounded-xl border border-black/5 min-h-[100px] sm:min-h-[120px]">
                               {userAnswer.trim() || <span className="italic text-black/40">(No answer given)</span>}
                             </div>
                           </div>
 
                           {/* Official Stored Correct Answer */}
-                          <div className="rounded-2xl border border-black/25 bg-[#141514] text-white p-6 shadow-lg">
+                          <div className="rounded-2xl border border-black/25 bg-[#141514] text-white p-4 sm:p-6 shadow-lg">
                             <div className="flex items-center justify-between mb-3">
                               <span className="text-xs font-semibold uppercase tracking-wider text-[#ff6330] flex items-center gap-1.5">
                                 <span className="size-2 rounded-full bg-[#ff6330]"></span>
                                 <span>Official Reference Answer</span>
                               </span>
                             </div>
-                            <div className="whitespace-pre-wrap font-sans text-white/95 text-base leading-relaxed bg-black/40 p-4 rounded-xl border border-white/10 min-h-[120px] font-normal selection:bg-[#ff5a24]">
+                            <div className="whitespace-pre-wrap break-words font-sans text-white/95 text-sm sm:text-base leading-relaxed bg-black/40 p-3.5 sm:p-4 rounded-xl border border-white/10 min-h-[100px] sm:min-h-[120px] font-normal selection:bg-[#ff5a24]">
                               {currentQuestion.answer}
                             </div>
                           </div>
                         </div>
 
                         {/* Grading Controls Box */}
-                        <div className="rounded-2xl border border-black/15 bg-white/90 p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div className="rounded-2xl border border-black/15 bg-white/90 p-4 sm:p-8 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 sm:gap-6">
                           <div>
-                            <p className="font-serif text-xl text-black">
+                            <p className="font-serif text-lg sm:text-xl text-black">
                               {session.phase === "graded" ? "Question Graded" : "Evaluate your response:"}
                             </p>
-                            <p className="text-sm text-[#555] mt-1">
+                            <p className="text-xs sm:text-sm text-[#555] mt-1 leading-relaxed">
                               {session.phase === "graded"
                                 ? `Recorded as ${lastGradedOutcome === "right" ? "Correct" : "Incorrect"}. Ready to advance.`
                                 : "Did your answer capture the core concepts? Self-mark honestly to train the adaptive selector."}
                             </p>
                           </div>
 
-                          <div className="flex items-center gap-4 flex-wrap">
+                          <div className="flex items-center gap-3 sm:gap-4 flex-wrap w-full sm:w-auto justify-stretch sm:justify-end">
                             {session.phase === "revealed" && (
                               <>
                                 <button
                                   type="button"
                                   onClick={() => handleSelfGrade(true)}
-                                  className="inline-flex items-center gap-2 bg-[#15803d] hover:bg-[#166534] text-white font-medium px-6 py-3 rounded-xl shadow-md transition"
+                                  className="inline-flex items-center justify-center gap-2 bg-[#15803d] hover:bg-[#166534] text-white font-medium px-5 sm:px-6 py-3 rounded-xl shadow-md transition flex-1 sm:flex-initial"
                                 >
                                   <Icon name="check" className="size-4" />
                                   <span>Correct</span>
@@ -1842,7 +1949,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                                 <button
                                   type="button"
                                   onClick={() => handleSelfGrade(false)}
-                                  className="inline-flex items-center gap-2 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium px-6 py-3 rounded-xl shadow-md transition"
+                                  className="inline-flex items-center justify-center gap-2 bg-[#b91c1c] hover:bg-[#991b1b] text-white font-medium px-5 sm:px-6 py-3 rounded-xl shadow-md transition flex-1 sm:flex-initial"
                                 >
                                   <Icon name="x" className="size-4" />
                                   <span>Incorrect</span>
@@ -1854,7 +1961,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                               <button
                                 type="button"
                                 onClick={handleNextQuestion}
-                                className="inline-flex items-center gap-3 bg-[#ff5a24] hover:bg-[#e04816] text-white font-medium px-8 py-3.5 rounded-xl shadow-lg transition"
+                                className="inline-flex items-center justify-center gap-3 bg-[#ff5a24] hover:bg-[#e04816] text-white font-medium px-6 sm:px-8 py-3.5 rounded-xl shadow-lg transition w-full sm:w-auto"
                               >
                                 <span>Next Question</span>
                                 <Icon name="arrow-right" className="size-4" />
@@ -1866,16 +1973,16 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-20 bg-white/60 rounded-3xl border border-black/10 p-12 space-y-6">
-                    <Icon name="book-open" className="size-16 text-[#ff5a24] mx-auto" />
-                    <h2 className="font-serif text-3xl text-black">Your Question Bank is Empty</h2>
-                    <p className="max-w-md mx-auto text-[#555]">
+                  <div className="text-center py-12 sm:py-20 bg-white/60 rounded-3xl border border-black/10 p-6 sm:p-12 space-y-4 sm:space-y-6">
+                    <Icon name="book-open" className="size-12 sm:size-16 text-[#ff5a24] mx-auto" />
+                    <h2 className="font-serif text-2xl sm:text-3xl text-black">Your Question Bank is Empty</h2>
+                    <p className="max-w-md mx-auto text-sm sm:text-base text-[#555]">
                       Please upload one or more Markdown question files (.md) to generate your mixed interview pool.
                     </p>
                     <button
                       type="button"
                       onClick={() => setCurrentView("manage")}
-                      className="bg-[#111111] text-white px-8 py-3.5 rounded-xl font-medium shadow hover:bg-black transition inline-flex items-center gap-2"
+                      className="bg-[#111111] text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl font-medium shadow hover:bg-black transition inline-flex items-center gap-2 text-sm sm:text-base"
                     >
                       <Icon name="upload" className="size-4" />
                       <span>Upload Question Files</span>
@@ -1889,41 +1996,41 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
             {/* VIEW 2: MANAGE SUBJECTS SCREEN */}
             {/* ==================================================== */}
             {currentView === "manage" && (
-              <div className="space-y-12 animate-fadeIn">
+              <div className="space-y-8 sm:space-y-12 animate-fadeIn">
                 <div className="max-w-3xl">
-                  <div className="mb-3 flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-[#222]">
-                    <span className="size-2.5 bg-[#ff5a24]"></span>
+                  <div className="mb-2 sm:mb-3 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-[#222]">
+                    <span className="size-2 sm:size-2.5 bg-[#ff5a24] shrink-0"></span>
                     <span>KNOWLEDGE INGESTION • SUBJECTS:ALL</span>
                   </div>
-                  <h1 className="text-4xl sm:text-5xl font-serif text-black leading-tight">
+                  <h1 className="text-3xl sm:text-5xl font-serif text-black leading-tight">
                     Manage & Curate <span className="italic text-[#ff5a24]">Subject Banks</span>
                   </h1>
-                  <p className="mt-3 text-lg text-[#444] leading-relaxed">
+                  <p className="mt-2 sm:mt-3 text-base sm:text-lg text-[#444] leading-relaxed">
                     Upload markdown files for subjects like OS, DBMS, OOP, Networking, and JavaScript. 
                     Reconciled question keys ensure your learning history and streaks are never scrambled upon re-upload.
                   </p>
                 </div>
 
                 {/* Upload Form Card */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  <div className="lg:col-span-2 rounded-3xl border border-black/15 bg-white/80 p-8 shadow-sm space-y-6">
-                    <h3 className="font-serif text-2xl text-black">Upload New Subject</h3>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+                  <div className="lg:col-span-2 rounded-2xl sm:rounded-3xl border border-black/15 bg-white/80 p-5 sm:p-8 shadow-sm space-y-5 sm:space-y-6">
+                    <h3 className="font-serif text-xl sm:text-2xl text-black">Upload New Subject</h3>
 
                     {/* Drag and drop input */}
-                    <div className="border-2 border-dashed border-black/20 hover:border-[#ff5a24] rounded-2xl p-8 text-center transition bg-white/50 cursor-pointer relative">
+                    <div className="border-2 border-dashed border-black/20 hover:border-[#ff5a24] rounded-2xl p-5 sm:p-8 text-center transition bg-white/50 cursor-pointer relative">
                       <input 
                         type="file" 
                         accept=".md,.txt" 
                         onChange={handleFileSelect}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
-                      <Icon name="upload" className="size-10 text-[#ff5a24] mx-auto mb-3" />
-                      <p className="font-medium text-black">Choose a .md question file or drag it here</p>
-                      <p className="text-xs text-[#777] mt-1">Expected format: ### Q1. Question title followed by **A.** Answer</p>
+                      <Icon name="upload" className="size-8 sm:size-10 text-[#ff5a24] mx-auto mb-2 sm:mb-3" />
+                      <p className="font-medium text-black text-sm sm:text-base">Choose a .md question file or drag it here</p>
+                      <p className="text-xs text-[#777] mt-1 break-words">Expected format: ### Q1. Question title followed by **A.** Answer</p>
                     </div>
 
                     {/* Metadata fields */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-wider text-[#333] mb-1">
                           Subject Display Name
@@ -1933,7 +2040,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                           value={uploadName}
                           onChange={(e) => setUploadName(e.target.value)}
                           placeholder="e.g. Operating Systems"
-                          className="w-full px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black text-sm focus:outline-none focus:border-[#ff5a24]"
+                          className="w-full px-3.5 sm:px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black text-sm focus:outline-none focus:border-[#ff5a24]"
                         />
                       </div>
                       <div>
@@ -1945,7 +2052,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                           value={uploadSlug}
                           onChange={(e) => setUploadSlug(e.target.value)}
                           placeholder="e.g. os"
-                          className="w-full px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black text-sm focus:outline-none focus:border-[#ff5a24]"
+                          className="w-full px-3.5 sm:px-4 py-2.5 rounded-xl border border-black/20 bg-white text-black text-sm focus:outline-none focus:border-[#ff5a24]"
                         />
                       </div>
                     </div>
@@ -1960,27 +2067,27 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                         onChange={(e) => handleRawTextChange(e.target.value)}
                         placeholder="### Q1. What is a mutex?&#10;&#10;**A.** A mutex is a mutual exclusion lock..."
                         rows={6}
-                        className="w-full p-4 rounded-xl border border-black/20 bg-white text-black text-sm font-mono focus:outline-none focus:border-[#ff5a24]"
+                        className="w-full p-3.5 sm:p-4 rounded-xl border border-black/20 bg-white text-black text-sm font-mono focus:outline-none focus:border-[#ff5a24]"
                       />
                     </div>
 
                     {/* Parse Preview Status */}
                     {uploadRawText.trim() && (
-                      <div className="p-4 rounded-xl border border-black/10 bg-[#fbfbfa] space-y-2">
-                        <div className="flex items-center justify-between text-sm">
+                      <div className="p-3.5 sm:p-4 rounded-xl border border-black/10 bg-[#fbfbfa] space-y-2">
+                        <div className="flex items-center justify-between text-sm flex-wrap gap-2">
                           <span className="font-medium text-black">Parsed Questions Recognized:</span>
                           <span className="font-bold text-[#ff5a24] bg-white px-2.5 py-0.5 rounded-full border border-black/10">
                             {parsedPreviewCount} questions
                           </span>
                         </div>
                         {uploadWarnings.map((w, idx) => (
-                          <p key={idx} className="text-xs text-[#b45309] flex items-center gap-1.5">
+                          <p key={idx} className="text-xs text-[#b45309] flex items-center gap-1.5 break-words">
                             <Icon name="alert-triangle" className="size-3.5 shrink-0" />
                             <span>{w}</span>
                           </p>
                         ))}
                         {uploadErrors.map((err, idx) => (
-                          <p key={idx} className="text-xs text-[#b91c1c] font-medium flex items-center gap-1.5">
+                          <p key={idx} className="text-xs text-[#b91c1c] font-medium flex items-center gap-1.5 break-words">
                             <Icon name="x" className="size-3.5 shrink-0" />
                             <span>{err}</span>
                           </p>
@@ -1993,7 +2100,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                         type="button"
                         onClick={() => handleSaveSubject(false)}
                         disabled={parsedPreviewCount === 0}
-                        className="mf-btn-primary gap-2 px-8 py-3"
+                        className="mf-btn-primary gap-2 px-6 sm:px-8 py-3 w-full sm:w-auto"
                       >
                         <Icon name="check" className="size-4" />
                         <span>Save to subjects:all</span>
@@ -2002,16 +2109,16 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                   </div>
 
                   {/* Format Guidelines Sidebar */}
-                  <div className="rounded-3xl border border-black/15 bg-white/60 p-8 shadow-sm space-y-6">
-                    <h3 className="font-serif text-xl text-black">Format Guidelines</h3>
-                    <div className="space-y-4 text-xs text-[#444] leading-relaxed">
-                      <div className="p-3 bg-white rounded-xl border border-black/10">
+                  <div className="rounded-2xl sm:rounded-3xl border border-black/15 bg-white/60 p-5 sm:p-8 shadow-sm space-y-5 sm:space-y-6">
+                    <h3 className="font-serif text-lg sm:text-xl text-black">Format Guidelines</h3>
+                    <div className="space-y-3 sm:space-y-4 text-xs text-[#444] leading-relaxed">
+                      <div className="p-3 bg-white rounded-xl border border-black/10 break-words">
                         <p className="font-bold text-black mb-1">Standard Question Heading:</p>
-                        <code className="text-[#ff5a24] font-mono">### Q1. What is ACID?</code>
+                        <code className="text-[#ff5a24] font-mono break-all">### Q1. What is ACID?</code>
                       </div>
-                      <div className="p-3 bg-white rounded-xl border border-black/10">
+                      <div className="p-3 bg-white rounded-xl border border-black/10 break-words">
                         <p className="font-bold text-black mb-1">Standard Answer Marker:</p>
-                        <code className="text-[#ff5a24] font-mono">**A.** Atomicity, Consistency...</code>
+                        <code className="text-[#ff5a24] font-mono break-all">**A.** Atomicity, Consistency...</code>
                       </div>
                       <div className="p-3 bg-white rounded-xl border border-black/10">
                         <p className="font-bold text-black mb-1">Code Fences Protected:</p>
@@ -2022,28 +2129,28 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                 </div>
 
                 {/* Existing Uploaded Subjects */}
-                <div className="space-y-6">
-                  <h3 className="font-serif text-2xl text-black">Saved Subjects in subjects:all</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-5 sm:space-y-6">
+                  <h3 className="font-serif text-xl sm:text-2xl text-black">Saved Subjects in subjects:all</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {subjects.map(s => {
                       const data = subjectsData[s.slug];
                       const qCount = data ? data.questions.length : 0;
                       return (
-                        <div key={s.slug} className="rounded-2xl border border-black/15 bg-white/80 p-6 shadow-sm flex flex-col justify-between space-y-4">
+                        <div key={s.slug} className="rounded-2xl border border-black/15 bg-white/80 p-5 sm:p-6 shadow-sm flex flex-col justify-between space-y-4">
                           <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-semibold uppercase tracking-wider text-[#ff5a24]">
+                            <div className="flex items-center justify-between mb-2 gap-2">
+                              <span className="text-xs font-semibold uppercase tracking-wider text-[#ff5a24] truncate">
                                 {s.slug}
                               </span>
-                              <span className="text-xs text-[#777]">
+                              <span className="text-xs text-[#777] shrink-0">
                                 {data ? new Date(data.updatedAt).toLocaleDateString() : ""}
                               </span>
                             </div>
-                            <h4 className="font-serif text-xl text-black">{s.name}</h4>
+                            <h4 className="font-serif text-lg sm:text-xl text-black break-words">{s.name}</h4>
                             <p className="text-sm text-[#555] mt-1">{qCount} practice questions loaded</p>
                           </div>
 
-                          <div className="flex items-center justify-between pt-4 border-t border-black/10">
+                          <div className="flex items-center justify-between pt-4 border-t border-black/10 gap-2">
                             <button
                               type="button"
                               onClick={() => {
@@ -2080,65 +2187,65 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
             {/* VIEW 3: PERFORMANCE HISTORY / ANALYTICS */}
             {/* ==================================================== */}
             {currentView === "history" && (
-              <div className="space-y-8 animate-fadeIn">
+              <div className="space-y-6 sm:space-y-8 animate-fadeIn">
                 <div className="max-w-3xl">
-                  <div className="mb-3 flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-[#222]">
-                    <span className="size-2.5 bg-[#ff5a24]"></span>
+                  <div className="mb-2 sm:mb-3 flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-[#222]">
+                    <span className="size-2 sm:size-2.5 bg-[#ff5a24] shrink-0"></span>
                     <span>MASTERY DASHBOARD • HISTORY:ALL</span>
                   </div>
-                  <h1 className="text-4xl sm:text-5xl font-serif text-black leading-tight">
+                  <h1 className="text-3xl sm:text-5xl font-serif text-black leading-tight">
                     Adaptive Learning <span className="italic text-[#ff5a24]">History</span>
                   </h1>
-                  <p className="mt-2 text-base text-[#555]">
+                  <p className="mt-2 text-sm sm:text-base text-[#555]">
                     Review performance metrics across all subjects. Questions answered incorrectly receive higher selection weights, while consecutive streaks fade over time.
                   </p>
                 </div>
 
                 {/* High level counters */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="p-5 rounded-2xl border border-black/10 bg-white/70">
-                    <div className="text-xs text-[#666] font-semibold uppercase">Total In Bank</div>
-                    <div className="text-3xl font-serif text-black mt-2">{combinedPool.length}</div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="p-3.5 sm:p-5 rounded-2xl border border-black/10 bg-white/70">
+                    <div className="text-[10px] sm:text-xs text-[#666] font-semibold uppercase tracking-wider">Total In Bank</div>
+                    <div className="text-2xl sm:text-3xl font-serif text-black mt-1.5 sm:mt-2">{combinedPool.length}</div>
                   </div>
-                  <div className="p-5 rounded-2xl border border-black/10 bg-white/70">
-                    <div className="text-xs text-[#666] font-semibold uppercase">Questions Seen</div>
-                    <div className="text-3xl font-serif text-black mt-2">
+                  <div className="p-3.5 sm:p-5 rounded-2xl border border-black/10 bg-white/70">
+                    <div className="text-[10px] sm:text-xs text-[#666] font-semibold uppercase tracking-wider">Questions Seen</div>
+                    <div className="text-2xl sm:text-3xl font-serif text-black mt-1.5 sm:mt-2">
                       {Object.keys(historyMap).length}
                     </div>
                   </div>
-                  <div className="p-5 rounded-2xl border border-black/10 bg-white/70">
-                    <div className="text-xs text-[#666] font-semibold uppercase">Needs Practice (Wrong &gt; 0)</div>
-                    <div className="text-3xl font-serif text-[#b91c1c] mt-2">
+                  <div className="p-3.5 sm:p-5 rounded-2xl border border-black/10 bg-white/70">
+                    <div className="text-[10px] sm:text-xs text-[#666] font-semibold uppercase tracking-wider">Needs Practice (Wrong &gt; 0)</div>
+                    <div className="text-2xl sm:text-3xl font-serif text-[#b91c1c] mt-1.5 sm:mt-2">
                       {Object.values(historyMap).filter(h => h.timesWrong > 0).length}
                     </div>
                   </div>
-                  <div className="p-5 rounded-2xl border border-black/10 bg-white/70">
-                    <div className="text-xs text-[#666] font-semibold uppercase">Mastered (Streak &gt;= 5)</div>
-                    <div className="text-3xl font-serif text-[#15803d] mt-2">
+                  <div className="p-3.5 sm:p-5 rounded-2xl border border-black/10 bg-white/70">
+                    <div className="text-[10px] sm:text-xs text-[#666] font-semibold uppercase tracking-wider">Mastered (Streak &gt;= 5)</div>
+                    <div className="text-2xl sm:text-3xl font-serif text-[#15803d] mt-1.5 sm:mt-2">
                       {Object.values(historyMap).filter(h => h.currentStreak >= 5).length}
                     </div>
                   </div>
                 </div>
 
                 {/* Detailed Questions List */}
-                <div className="rounded-3xl border border-black/15 bg-white/80 p-6 sm:p-8 shadow-sm space-y-4">
-                  <h3 className="font-serif text-2xl text-black mb-4">Question Breakdown</h3>
-                  <div className="divide-y divide-black/10 overflow-x-auto">
+                <div className="rounded-2xl sm:rounded-3xl border border-black/15 bg-white/80 p-4 sm:p-8 shadow-sm space-y-4">
+                  <h3 className="font-serif text-xl sm:text-2xl text-black mb-3 sm:mb-4">Question Breakdown</h3>
+                  <div className="divide-y divide-black/10">
                     {combinedPool.map(q => {
                       const h = historyMap[q.id];
                       return (
-                        <div key={q.id} className="py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                          <div className="max-w-xl">
-                            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-black/5 text-[#444] mr-2">
+                        <div key={q.id} className="py-3.5 sm:py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-2.5 sm:gap-4">
+                          <div className="max-w-xl min-w-0">
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-black/5 text-[#444] mr-2 inline-block mb-1 sm:mb-0">
                               {q.subjectName || q.subject}
                             </span>
-                            <span className="text-sm font-medium text-black">{formatQuestionText(q.question)}</span>
+                            <span className="text-sm font-medium text-black break-words">{formatQuestionText(q.question)}</span>
                           </div>
-                          <div className="flex items-center gap-4 text-xs shrink-0">
+                          <div className="flex items-center gap-2.5 sm:gap-4 text-xs flex-wrap shrink-0">
                             <span>Seen: <strong>{h ? h.timesSeen : 0}</strong></span>
                             <span>Wrong: <strong className="text-[#b91c1c]">{h ? h.timesWrong : 0}</strong></span>
                             <span className="text-[#ff5a24] font-semibold">Streak: {h ? h.currentStreak : 0}</span>
-                            <span className="px-2 py-1 rounded bg-black/5">
+                            <span className="px-2 py-1 rounded bg-black/5 whitespace-nowrap">
                               Weight: {calculateQuestionWeight(q.id, historyMap).toFixed(1)}x
                             </span>
                           </div>
@@ -2156,35 +2263,35 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
             {currentView === "summary" && (() => {
               const displaySummary = summarySession || session;
               return (
-                <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn">
-                  <div className="text-center space-y-3">
+                <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 animate-fadeIn">
+                  <div className="text-center space-y-2 sm:space-y-3">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff5a24]/10 text-[#ff5a24] text-xs font-semibold uppercase tracking-wider">
                       <Icon name="check-circle" className="size-4" />
                       <span>Session Concluded</span>
                     </div>
-                    <h1 className="text-4xl sm:text-5xl font-serif text-black">Interview Session Summary</h1>
-                    <p className="text-base text-[#555]">
+                    <h1 className="text-3xl sm:text-5xl font-serif text-black">Interview Session Summary</h1>
+                    <p className="text-sm sm:text-base text-[#555] break-words">
                       Mixed interview across {representedSubjects.join(", ")}
                     </p>
                   </div>
 
                   {/* Score Big Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div className="p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                    <div className="p-5 sm:p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
                       <div className="text-xs font-semibold uppercase text-[#666]">Total Answered</div>
-                      <div className="text-5xl font-serif text-black mt-3">
+                      <div className="text-4xl sm:text-5xl font-serif text-black mt-2 sm:mt-3">
                         {displaySummary.score.right + displaySummary.score.wrong}
                       </div>
                     </div>
-                    <div className="p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
+                    <div className="p-5 sm:p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
                       <div className="text-xs font-semibold uppercase text-[#15803d]">Correct Marks</div>
-                      <div className="text-5xl font-serif text-[#15803d] mt-3">
+                      <div className="text-4xl sm:text-5xl font-serif text-[#15803d] mt-2 sm:mt-3">
                         {displaySummary.score.right}
                       </div>
                     </div>
-                    <div className="p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
+                    <div className="p-5 sm:p-8 rounded-2xl border border-black/15 bg-white/80 text-center shadow-sm">
                       <div className="text-xs font-semibold uppercase text-[#b91c1c]">Missed / Wrong</div>
-                      <div className="text-5xl font-serif text-[#b91c1c] mt-3">
+                      <div className="text-4xl sm:text-5xl font-serif text-[#b91c1c] mt-2 sm:mt-3">
                         {displaySummary.score.wrong}
                       </div>
                     </div>
@@ -2192,21 +2299,21 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
 
                   {/* Missed questions section */}
                   {displaySummary.sessionMissedQuestions && displaySummary.sessionMissedQuestions.length > 0 ? (
-                    <div className="rounded-3xl border border-black/15 bg-white/80 p-8 shadow-sm space-y-6">
-                      <h3 className="font-serif text-2xl text-black">Questions to Review</h3>
-                      <div className="space-y-6">
+                    <div className="rounded-2xl sm:rounded-3xl border border-black/15 bg-white/80 p-5 sm:p-8 shadow-sm space-y-5 sm:space-y-6">
+                      <h3 className="font-serif text-xl sm:text-2xl text-black">Questions to Review</h3>
+                      <div className="space-y-4 sm:space-y-6">
                         {displaySummary.sessionMissedQuestions.map((item, idx) => (
-                          <div key={idx} className="p-5 rounded-2xl border border-black/10 bg-[#fafafa] space-y-3">
-                            <div className="flex items-center gap-2">
+                          <div key={idx} className="p-4 sm:p-5 rounded-2xl border border-black/10 bg-[#fafafa] space-y-3">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-xs font-bold px-2 py-0.5 rounded bg-black/5 text-[#222]">
                                 {item.question.subjectName}
                               </span>
-                              <h4 className="font-medium text-base text-black">{formatQuestionText(item.question.question)}</h4>
+                              <h4 className="font-medium text-sm sm:text-base text-black break-words">{formatQuestionText(item.question.question)}</h4>
                             </div>
-                            <div className="text-xs text-[#555] bg-white p-3 rounded-lg border border-black/5">
+                            <div className="text-xs text-[#555] bg-white p-3 rounded-lg border border-black/5 break-words">
                               <strong>Your Answer:</strong> {item.userAnswer}
                             </div>
-                            <div className="text-xs text-white bg-[#111] p-3 rounded-lg border border-black/10">
+                            <div className="text-xs text-white bg-[#111] p-3 rounded-lg border border-black/10 break-words">
                               <strong className="text-[#ff5a24]">Correct Answer:</strong> {item.question.answer}
                             </div>
                           </div>
@@ -2214,17 +2321,17 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                       </div>
                     </div>
                   ) : (
-                    <div className="p-8 rounded-2xl border border-black/10 bg-white text-center">
-                      <p className="font-serif text-xl text-[#15803d]">Flawless round! Zero questions marked wrong.</p>
+                    <div className="p-6 sm:p-8 rounded-2xl border border-black/10 bg-white text-center">
+                      <p className="font-serif text-lg sm:text-xl text-[#15803d]">Flawless round! Zero questions marked wrong.</p>
                     </div>
                   )}
 
                   {/* Buttons */}
-                  <div className="flex items-center justify-center gap-4 pt-4">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-4">
                     <button
                       type="button"
                       onClick={handleRestartFromSummary}
-                      className="bg-[#111111] hover:bg-black text-white px-8 py-4 rounded-xl font-medium shadow-lg transition flex items-center gap-2"
+                      className="bg-[#111111] hover:bg-black text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-medium shadow-lg transition flex items-center justify-center gap-2 w-full sm:w-auto"
                     >
                       <Icon name="rotate-ccw" className="size-4" />
                       <span>Start New Session</span>
@@ -2232,7 +2339,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                     <button
                       type="button"
                       onClick={() => setCurrentView("manage")}
-                      className="border border-black/25 bg-white px-6 py-4 rounded-xl font-medium hover:bg-black/5 transition"
+                      className="border border-black/25 bg-white px-6 py-3.5 sm:py-4 rounded-xl font-medium hover:bg-black/5 transition w-full sm:w-auto text-center"
                     >
                       Manage Subjects
                     </button>
@@ -2246,30 +2353,30 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
           {/* RE-UPLOAD CONFIRMATION MODAL */}
           {/* ==================================================== */}
           {reuploadConfirmModal && (
-            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-3xl border border-black/20 p-8 max-w-lg w-full shadow-2xl space-y-5">
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-3.5 sm:p-4">
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-black/20 p-5 sm:p-8 max-w-lg w-full shadow-2xl space-y-4 sm:space-y-5">
                 <div className="flex items-center gap-3 text-[#ff5a24]">
-                  <Icon name="alert-triangle" className="size-6" />
-                  <h3 className="font-serif text-2xl text-black">Reconcile Subject Upload?</h3>
+                  <Icon name="alert-triangle" className="size-5 sm:size-6 shrink-0" />
+                  <h3 className="font-serif text-xl sm:text-2xl text-black">Reconcile Subject Upload?</h3>
                 </div>
-                <p className="text-sm text-[#444] leading-relaxed">
+                <p className="text-sm text-[#444] leading-relaxed break-words">
                   A subject with slug <code className="font-bold text-black bg-black/5 px-1 py-0.5 rounded">{reuploadConfirmModal.slug}</code> already exists with {reuploadConfirmModal.oldQuestionsCount} questions.
                 </p>
-                <p className="text-xs text-[#666] leading-relaxed bg-[#f6f5f2] p-3 rounded-xl border border-black/10">
+                <p className="text-xs text-[#666] leading-relaxed bg-[#f6f5f2] p-3 rounded-xl border border-black/10 break-words">
                   Stable Question Reconciliation will preserve existing streaks and history for matching questions, assign new IDs for genuinely new material, and leave deleted question history orphaned without misattributing it.
                 </p>
-                <div className="flex justify-end gap-3 pt-2">
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-2.5 sm:gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => setReuploadConfirmModal(null)}
-                    className="px-5 py-2.5 rounded-xl border border-black/20 text-sm font-medium hover:bg-black/5"
+                    className="px-5 py-2.5 rounded-xl border border-black/20 text-sm font-medium hover:bg-black/5 w-full sm:w-auto text-center"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={() => handleSaveSubject(true)}
-                    className="px-6 py-2.5 rounded-xl bg-[#ff5a24] text-white text-sm font-medium hover:bg-[#e04816] shadow"
+                    className="px-6 py-2.5 rounded-xl bg-[#ff5a24] text-white text-sm font-medium hover:bg-[#e04816] shadow w-full sm:w-auto text-center"
                   >
                     Confirm & Reconcile
                   </button>
@@ -2282,14 +2389,14 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
           {/* RESUME SESSION MODAL */}
           {/* ==================================================== */}
           {resumePromptModal && (
-            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-3xl border border-black/20 p-8 max-w-md w-full shadow-2xl space-y-5 text-center">
-                <Icon name="sparkles" className="size-10 text-[#ff5a24] mx-auto" />
-                <h3 className="font-serif text-2xl text-black">Resume Unfinished Session?</h3>
-                <p className="text-sm text-[#555] leading-relaxed">
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-3.5 sm:p-4">
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-black/20 p-5 sm:p-8 max-w-md w-full shadow-2xl space-y-4 sm:space-y-5 text-center">
+                <Icon name="sparkles" className="size-8 sm:size-10 text-[#ff5a24] mx-auto" />
+                <h3 className="font-serif text-xl sm:text-2xl text-black">Resume Unfinished Session?</h3>
+                <p className="text-sm text-[#555] leading-relaxed break-words">
                   You have an in-progress interview session ({resumePromptModal.session.score.right} correct / {resumePromptModal.session.score.wrong} incorrect). Would you like to resume where you left off?
                 </p>
-                <div className="flex justify-center gap-3 pt-2">
+                <div className="flex flex-col-reverse sm:flex-row justify-center gap-2.5 sm:gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => {
@@ -2297,7 +2404,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                       setResumePromptModal(null);
                       initFreshSession(combinedPool, historyMap);
                     }}
-                    className="mf-btn-secondary px-5 py-2.5 text-sm"
+                    className="mf-btn-secondary px-5 py-2.5 text-sm w-full sm:w-auto text-center"
                   >
                     Start Fresh
                   </button>
@@ -2308,7 +2415,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
                       setResumePromptModal(null);
                       setCurrentView("interview");
                     }}
-                    className="mf-btn-primary px-6 py-2.5 text-sm"
+                    className="mf-btn-primary px-6 py-2.5 text-sm w-full sm:w-auto text-center"
                   >
                     Resume Session
                   </button>
@@ -2318,7 +2425,7 @@ The Event Loop continuously checks if the Call Stack is empty. When empty, it dr
           )}
 
           {/* Footer */}
-          <footer className="w-full py-6 text-center text-xs text-[#777] border-t border-black/10 mt-12">
+          <footer className="w-full py-6 px-4 text-center text-xs text-[#777] border-t border-black/10 mt-12 leading-relaxed break-words">
             Mockflow Technical Interview Simulator • Adaptive Learning Engine • All Questions Mixed Across Active Subjects
           </footer>
         </div>
